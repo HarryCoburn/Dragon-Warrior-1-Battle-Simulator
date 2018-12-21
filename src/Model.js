@@ -12,6 +12,7 @@ const initModel = {
     agility: 4,
     hp: 15,
     mp: 0,
+    weapon: 'Unarmed',
   },
   enemy: {
     'slime': {
@@ -69,6 +70,40 @@ const initModel = {
     9: [30, 22, 50, 36],
     10: [35, 31, 54, 40],
     20: [92, 88, 138, 128],
+  },
+  weapons: {
+    'Unarmed': {
+      name: "Unarmed",
+      mod: 0,
+    },
+    'Bamboo Pole': {
+      name: "Bamboo Pole",
+      mod: 2,
+    },
+    'Club': {
+      name: "Club",
+      mod: 4,
+    },
+    'Copper Sword': {
+      name: "Copper Sword",
+      mod: 10,
+    },
+    'Hand Axe': {
+      name: "Hand Axe",
+      mod: 15,
+    },
+    'Broad Sword': {
+      name: "Broad Sword",
+      mod: 20,
+    },
+    'Flame Sword': {
+      name: "Flame Sword",
+      mod: 28,
+    },
+    "Erdrick's Sword": {
+      name: "Erdrick's Sword",
+      mod: 40,
+    },
   },
 };
 

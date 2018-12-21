@@ -7,11 +7,19 @@ const MSGS = {
   CHANGE_LEVEL: 'CHANGE_LEVEL',
   CHANGE_NAME: 'CHANGE_NAME',
   CHANGE_STATS: 'CHANGE_STATS',
+  CHANGE_WEAPON: 'CHANGE_WEAPON',
   FIGHT_CLEANUP: 'FIGHT_CLEANUP',
 };
 const getSum = (total, num) => total + num;
 
 const fightCleanupMsg = {type: MSGS.FIGHT_CLEANUP};
+
+export function weaponMsg(weapon) {
+  return {
+    type: MSGS.CHANGE_WEAPON,
+    weapon,
+  };
+}
 
 /**
  * [unitMsg Forms message object for changing the enemy ]
@@ -64,7 +72,6 @@ export function fightMsg(player, enemy) {
 }
 
 const statsMsg = {type: MSGS.CHANGE_STATS};
-
 
 /**
  * [update Handles the update messages. Source of impurity]
@@ -121,6 +128,13 @@ function update(msg, model) {
         {...model.player, name: name, nameSum: sum, progression: type};
         model = {...model, player: updatedPlayer};
         messageQueue.push(statsMsg);
+        break;
+      }
+
+      case MSGS.CHANGE_WEAPON: {
+        const {weapon} = msg;
+        const updatedPlayer = {...model.player, weapon: model.weapons[weapon]};
+        model = {...model, player: updatedPlayer};
         break;
       }
 

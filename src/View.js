@@ -1,7 +1,7 @@
 import hh from 'hyperscript-helpers';
 import {h} from 'virtual-dom';
 import * as R from 'ramda';
-import {fightMsg, enemyMsg, levelMsg, nameMsg} from './Update';
+import {fightMsg, enemyMsg, levelMsg, nameMsg, weaponMsg} from './Update';
 
 const {
   div,
@@ -20,10 +20,23 @@ const numRange = (size, startAt = 0) =>
   [...Array(size).keys()].map((i) => i + startAt);
 const ENEMIES = ['Choose an enemy', 'slime', 'red slime', 'drakee', 'ghost', 'magician', 'magidrakee', 'scorpion'];
 const LEVELS = numRange(30, 1);
+const WEAPONS = ['Unarmed', 'Bamboo Pole', 'Club', 'Copper Sword', 'Hand Axe', 'Broad Sword', 'Flame Sword', "Erdrick's Sword"];
 const statLine = (className, label, value) =>
   div({className}, `${label}: ${value}`);
 const statLineClasses = 'pv2 ph2 dib';
 
+/**
+ * [weaponOptions description]
+ * @param  {[type]} selectedWeapon [description]
+ * @return {[type]}                [description]
+ */
+function weaponOptions(selectedWeapon) {
+  return R.map(
+      (weapon) =>
+        option({value: weapon, selected: selectedWeapon === weapon}, weapon),
+      WEAPONS
+  );
+}
 
 /**
  * [enemyOptions description]
@@ -58,7 +71,7 @@ function levelOptions(selectedLevel) {
  * @return {[type]}          [description]
  */
 function playerBlock(dispatch, player) {
-  const {hp} = player;
+  const {hp, weapon} = player;
   return div({className: 'w-25'}, [
     div({}, 'Player Name:'),
     input({
@@ -71,7 +84,15 @@ function playerBlock(dispatch, player) {
     },
     levelOptions(player.level),
     ),
+    div({}, 'Player Weapon:'),
+    select({
+      className: 'db pa2 ba input-reset br1 bg-white ba b--black',
+      onchange: (e) => dispatch(weaponMsg(e.target.value)),
+    },
+    weaponOptions(player.weapon),
+    ),
     statLine(statLineClasses, 'Player Health', hp),
+    statLine(statLineClasses, 'Player Weapon', weapon.name),
   ]);
 }
 

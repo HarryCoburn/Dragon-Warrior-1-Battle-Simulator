@@ -21,8 +21,6 @@ const calculateEnemyHP = (enemyHP) =>
  * @return {[type]}        [description]
  */
 export function fight(player, enemy) {
-  console.log('This is the enemy');
-  console.log(enemy);
   // Get the damage ranges
   const ranges = damageRanges(player, enemy);
   const damage = calculateDamage(ranges);
@@ -83,7 +81,7 @@ function damageRanges(player, enemy) {
     values.enemyHigh = highDamage(enemyAttack, heroDefense);
   }
   // Player attack range calculation.
-  const heroAttack = player.strength;
+  const heroAttack = player.strength + player.weapon.mod;
   const enemyDefense = enemy.agility;
   if (getRandomArbitrary(1, criticalHitChance) === criticalHitChance) {
     values.playerLow = criticalDamageLow(heroAttack);
