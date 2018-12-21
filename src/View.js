@@ -18,12 +18,12 @@ const {
 const battleText = R.map((x) => p({}, x));
 const numRange = (size, startAt = 0) =>
   [...Array(size).keys()].map((i) => i + startAt);
-const ENEMIES = ['slime', 'red slime', 'drakee', 'ghost', 'magician', 'magidrakee', 'scorpion'];
+const ENEMIES = ['Choose an enemy', 'slime', 'red slime', 'drakee', 'ghost', 'magician', 'magidrakee', 'scorpion'];
 const LEVELS = numRange(30, 1);
 const statLine = (className, label, value) =>
   div({className}, `${label}: ${value}`);
 const statLineClasses = 'pv2 ph2 dib';
-const capitalize = (x) => x.charAt(0).toUpperCase() + x.slice(1);
+
 
 /**
  * [enemyOptions description]

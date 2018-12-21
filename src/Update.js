@@ -7,8 +7,11 @@ const MSGS = {
   CHANGE_LEVEL: 'CHANGE_LEVEL',
   CHANGE_NAME: 'CHANGE_NAME',
   CHANGE_STATS: 'CHANGE_STATS',
+  FIGHT_CLEANUP: 'FIGHT_CLEANUP',
 };
 const getSum = (total, num) => total + num;
+
+const fightCleanupMsg = {type: MSGS.FIGHT_CLEANUP};
 
 /**
  * [unitMsg Forms message object for changing the enemy ]
@@ -74,22 +77,40 @@ function update(msg, model) {
   messageQueue.push(msg);
   while (messageQueue.length !== 0) {
     const msg = messageQueue.pop();
+    // console.log(msg);
     switch (msg.type) {
       case MSGS.FIGHT: {
+        const {cleanBattleText} = model;
+        if (cleanBattleText) {
+          model = {...model, battleText: [], cleanBattleText: false};
+        }
         const {player, enemy} = msg;
         const currRoundEnemy = (typeof enemy === 'string') ? model.enemy[enemy] : enemy;
         const finishRound = fight(player, currRoundEnemy);
         const {playerAfterRound,
           enemyAfterRound,
           playerBattleText,
-          enemyBattleText} = finishRound;
+          enemyBattleText,
+          battleState} = finishRound;
+        if (!battleState) {
+          messageQueue.push(fightCleanupMsg);
+        }
         const updatedMsgs = [...model.battleText,
           playerBattleText,
           enemyBattleText];
         model = {...model, battleText: updatedMsgs,
           currentEnemy: enemyAfterRound,
           player: playerAfterRound,
-          inBattle: true};
+          inBattle: battleState};
+        break;
+      }
+
+      case MSGS.FIGHT_CLEANUP: {
+        messageQueue.push(statsMsg);
+        model = {...model,
+          currentEnemy: '',
+          cleanBattleText: true,
+        };
         break;
       }
 
@@ -104,8 +125,8 @@ function update(msg, model) {
       }
 
       case MSGS.CHANGE_ENEMY: {
-        const {unit} = msg;
-        model = {...model, currentEnemy: unit};
+        const {enemy} = msg;
+        model = {...model, currentEnemy: enemy};
         break;
       }
 
@@ -133,6 +154,7 @@ function update(msg, model) {
       }
       default:
         console.log('Got to default in update function');
+        console.log('Attempted message was ' + msg);
         return model;
     }
   }

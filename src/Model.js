@@ -1,6 +1,7 @@
 const initModel = {
   battleText: [],
-  currentEnemy: 'slime',
+  currentEnemy: '',
+  cleanBattleText: false,
   inBattle: false,
   player: {
     name: 'Rollo',
