@@ -23,6 +23,9 @@ function app(initModel, update, view, node) {
     const updatedView = view(dispatch, model);
     const patches = diff(currentView, updatedView);
     rootNode = patch(rootNode, patches);
+    // Get the scrolling to work right.
+    const scrollDiv = document.getElementById('scrollbox');
+    scrollDiv.scrollTop = scrollDiv.scrollHeight;
     currentView = updatedView;
   }
 }

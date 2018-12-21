@@ -21,7 +21,7 @@ const calculateEnemyHP = (enemyHP) =>
  * @return {[type]}        [description]
  */
 export function fight(player, enemy) {
-  console.log("This is the enemy");
+  console.log('This is the enemy');
   console.log(enemy);
   // Get the damage ranges
   const ranges = damageRanges(player, enemy);
@@ -38,16 +38,28 @@ export function fight(player, enemy) {
   if (enemyAfterRound.hp <= 0) {
     playerBattleText.push(
         `You have defeated the ${enemy.name}!`);
-    return {playerAfterRound, enemyAfterRound, playerBattleText, enemyBattleText, battleState: false};
+    return {playerAfterRound,
+      enemyAfterRound,
+      playerBattleText,
+      enemyBattleText,
+      battleState: false};
   }
   enemyBattleText.push(
       `${capitalize(enemy.name)} attacks! ${capitalize(enemy.name)} hits player for ${finalEnemyDamage} points of damage`);
   if (playerAfterRound.hp <= 0) {
     enemyBattleText.push(
         `You have been defeated by the ${enemy.name}!`);
-    return {playerAfterRound, enemyAfterRound, playerBattleText, enemyBattleText, battleState: false};
+    return {playerAfterRound,
+      enemyAfterRound,
+      playerBattleText,
+      enemyBattleText,
+      battleState: false};
   }
-  return {playerAfterRound, enemyAfterRound, playerBattleText, enemyBattleText, battleState: true};
+  return {playerAfterRound,
+    enemyAfterRound,
+    playerBattleText,
+    enemyBattleText,
+    battleState: true};
 }
 
 /**

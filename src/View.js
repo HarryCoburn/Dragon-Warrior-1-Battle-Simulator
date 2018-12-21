@@ -127,7 +127,7 @@ function view(dispatch, model) {
   const {player, currentEnemy} = model;
   return div({className: 'mw8 center'}, [
     h1({className: 'f2 pv2 bb'}, 'Dragon Quest 1 Battle Simulator'),
-    div({className: 'h5 overflow-y-auto'},
+    div('#scrollbox', {className: 'h5 overflow-y-scroll'},
         battleText(model.battleText),
     ),
     statsBlock(dispatch, player, currentEnemy, model),
