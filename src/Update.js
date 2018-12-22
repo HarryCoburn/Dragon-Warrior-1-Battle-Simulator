@@ -169,7 +169,8 @@ function update(msg, model) {
 
       case MSGS.CHANGE_SHIELD: {
         const {shield} = msg;
-        const updatedPlayer = {...model.player, armor: model.shields[shield]};
+        console.log(shield);
+        const updatedPlayer = {...model.player, shield: model.shields[shield]};
         model = {...model, player: updatedPlayer};
         break;
       }

@@ -1,7 +1,7 @@
 import hh from 'hyperscript-helpers';
 import {h} from 'virtual-dom';
 import * as R from 'ramda';
-import {fightMsg, enemyMsg, levelMsg, nameMsg, weaponMsg, armorMsg} from './Update';
+import {fightMsg, enemyMsg, levelMsg, nameMsg, weaponMsg, armorMsg, shieldMsg} from './Update';
 
 const {
   div,
@@ -165,7 +165,7 @@ function playerStatsBlock(dispatch, player) {
     statLine(statLineClasses, 'Player Magic', mp),
     statLine(statLineClasses, 'Player Weapon', weapon.name),
     statLine(statLineClasses, 'Player Armor', armor.name),
-    statLine(statLineClasses, 'Player Armor', shield.name)]);
+    statLine(statLineClasses, 'Player Shield', shield.name)]);
 }
 
 /**
