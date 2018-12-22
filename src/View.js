@@ -1,7 +1,14 @@
 import hh from 'hyperscript-helpers';
 import {h} from 'virtual-dom';
 import * as R from 'ramda';
-import {fightMsg, enemyMsg, levelMsg, nameMsg, weaponMsg, armorMsg, shieldMsg} from './Update';
+import {fightMsg,
+  enemyMsg,
+  levelMsg,
+  nameMsg,
+  weaponMsg,
+  armorMsg,
+  shieldMsg,
+healMsg,} from './Update';
 
 const {
   div,
@@ -39,7 +46,8 @@ function buttonBlock(dispatch, player, model) {
   if (!inBattle) {
     return button({className: '', onclick: (e) => dispatch(fightMsg(player, currentEnemy))}, 'Start Battle');
   }
-  return button({className: '', onclick: (e) => dispatch(fightMsg(player, currentEnemy))}, 'Attack');
+  return [button({className: '', onclick: (e) => dispatch(fightMsg(player, currentEnemy))}, 'Attack'),
+  button({className: '', onclick: (e) => dispatch(healMsg(player.hp, player.maxhp))}, 'Heal')];
 }
 
 
@@ -158,10 +166,10 @@ function playerBlock(dispatch, player) {
  * @return {[type]}          [description]
  */
 function playerStatsBlock(dispatch, player) {
-  const {hp, mp, weapon, armor, shield} = player;
+  const {hp, maxhp, mp, weapon, armor, shield} = player;
   return div({className: 'w-25 mh3'}, [
     div({className: ''}, 'Player Stats:'),
-    statLine(statLineClasses, 'Player Health', hp),
+    statLine(statLineClasses, 'Player Health', `${hp} / ${maxhp}`),
     statLine(statLineClasses, 'Player Magic', mp),
     statLine(statLineClasses, 'Player Weapon', weapon.name),
     statLine(statLineClasses, 'Player Armor', armor.name),

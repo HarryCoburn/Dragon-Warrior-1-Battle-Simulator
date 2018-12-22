@@ -2,6 +2,7 @@
 import {fight} from './Battle.js';
 
 const MSGS = {
+  CAST_HEAL: 'CAST_HEAL',
   CHANGE_ARMOR: 'CHANGE_ARMOR',
   CHANGE_ENEMY: 'CHANGE_ENEMY',
   CHANGE_LEVEL: 'CHANGE_LEVEL',
@@ -13,8 +14,23 @@ const MSGS = {
   FIGHT_CLEANUP: 'FIGHT_CLEANUP',
 };
 const getSum = (total, num) => total + num;
-
 const fightCleanupMsg = {type: MSGS.FIGHT_CLEANUP};
+const playerHeal = [10, 17];
+const getRandomArbitrary = (min, max) =>
+  Math.random() * (max - min) + min;
+
+/**
+ * [healMsg description]
+ * @param  {[type]} hp [description]
+ * @return {[type]}    [description]
+ */
+export function healMsg(hp, maxhp) {
+  return {
+    type: MSGS.CAST_HEAL,
+    hp,
+    maxhp,
+  };
+}
 
 export function shieldMsg(shield) {
   return {
@@ -102,6 +118,24 @@ function update(msg, model) {
     const msg = messageQueue.pop();
     // console.log(msg);
     switch (msg.type) {
+      case MSGS.CAST_HEAL: {
+        const {hp, maxhp} = msg;
+        const healMax = maxhp - hp;
+        const healAmt =
+          Math.floor(getRandomArbitrary(playerHeal[0], playerHeal[1]));
+        const finalHeal = (healMax < healAmt) ? healMax : healAmt;
+        const newPlayerHP = hp + finalHeal;
+        const updatedText = [...model.battleText];
+        if (finalHeal === 0) {
+          updatedText.push(`Player casts Heal! But their hit points were already at maximum!`);
+        } else {
+          updatedText.push(`Player casts Heal! Player is healed ${finalHeal} hit points`);
+        }
+        const updatedPlayer = {...model.player, hp: newPlayerHP};
+        model = {...model, player: updatedPlayer, battleText: updatedText};
+        break;
+      }
+
       case MSGS.FIGHT: {
         const {cleanBattleText} = model;
         if (cleanBattleText) {
@@ -169,7 +203,6 @@ function update(msg, model) {
 
       case MSGS.CHANGE_SHIELD: {
         const {shield} = msg;
-        console.log(shield);
         const updatedPlayer = {...model.player, shield: model.shields[shield]};
         model = {...model, player: updatedPlayer};
         break;

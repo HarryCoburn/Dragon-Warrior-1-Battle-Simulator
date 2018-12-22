@@ -11,6 +11,7 @@ const initModel = {
     strength: 4,
     agility: 4,
     hp: 15,
+    maxhp: 15,
     mp: 0,
     weapon: {name: 'Unarmed', mod: 0},
     armor: {name: 'Naked', mod: 0},
