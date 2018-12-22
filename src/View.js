@@ -20,8 +20,8 @@ const numRange = (size, startAt = 0) =>
   [...Array(size).keys()].map((i) => i + startAt);
 const ENEMIES = ['Choose an enemy', 'slime', 'red slime', 'drakee', 'ghost', 'magician', 'magidrakee', 'scorpion'];
 const LEVELS = numRange(30, 1);
-const WEAPONS = ['Unarmed', 'Bamboo Pole', 'Club', 'Copper Sword', 'Hand Axe', 'Broad Sword', 'Flame Sword', "Erdrick's Sword"];
-const ARMORS = ['Naked', 'Clothes', 'Leather Armor', 'Chain Mail', 'Half Plate', 'Full Plate', 'Magic Armor', "Erdrick's Armor"];
+const WEAPONS = ['Unarmed', 'Bamboo Pole', 'Club', 'Copper Sword', 'Hand Axe', 'Broad Sword', 'Flame Sword', 'Erdrick\'s Sword'];
+const ARMORS = ['Naked', 'Clothes', 'Leather Armor', 'Chain Mail', 'Half Plate', 'Full Plate', 'Magic Armor', 'Erdrick\'s Armor'];
 const SHIELDS = ['Naked', 'Small Shield', 'Large Shield', 'Silver Shield'];
 const statLine = (className, label, value) =>
   div({className}, `${label}: ${value}`);
@@ -99,9 +99,9 @@ function levelOptions(selectedLevel) {
  * @return {[type]}          [description]
  */
 function playerBlock(dispatch, player) {
-  const {hp, weapon, armor, shield} = player;
-  return div({className: 'w-25'}, [
-    div({}, 'Player Name:'),
+
+  return div({className: 'w-25 mh3'}, [
+    div({className: ''}, 'Player Name:'),
     input({
       oninput: (e) => dispatch(nameMsg(e.target.value)),
     }, 'Player Name'),
@@ -133,11 +133,23 @@ function playerBlock(dispatch, player) {
     },
     shieldOptions(player.shield),
     ),
+  ]);
+}
+
+/**
+ * [playerStatsBlock description]
+ * @param  {[type]} dispatch [description]
+ * @param  {[type]} player   [description]
+ * @return {[type]}          [description]
+ */
+function playerStatsBlock(dispatch, player) {
+  const {hp, weapon, armor, shield} = player;
+  return div({className: 'w-25 mh3'}, [
+    div({className: ''}, 'Player Stats:'),
     statLine(statLineClasses, 'Player Health', hp),
     statLine(statLineClasses, 'Player Weapon', weapon.name),
     statLine(statLineClasses, 'Player Armor', armor.name),
-    statLine(statLineClasses, 'Player Armor', shield.name),
-  ]);
+    statLine(statLineClasses, 'Player Armor', shield.name)]);
 }
 
 /**
@@ -150,7 +162,7 @@ function playerBlock(dispatch, player) {
  */
 function enemyBlock(dispatch, enemy, battleStatus, currentEnemy) {
   if (!battleStatus) {
-    return div({className: 'w-50'}, [
+    return div({className: 'w-25 mh3'}, [
       div({}, 'Enemy:'),
       select({
         className: 'db pa2 ba input-reset br1 bg-white ba b--black',
@@ -161,7 +173,7 @@ function enemyBlock(dispatch, enemy, battleStatus, currentEnemy) {
     );
   } else {
     const {hp} = currentEnemy;
-    return div({className: 'w-50'}, [
+    return div({className: 'w-25 mh3'}, [
       statLine(statLineClasses, 'Enemy Health', hp),
     ]);
   }
@@ -179,6 +191,7 @@ function statsBlock(dispatch, player, enemy, model) {
   return div({className: 'flex'}, [
     playerBlock(dispatch, player),
     enemyBlock(dispatch, enemy, model.inBattle, model.currentEnemy),
+    playerStatsBlock(dispatch, player),
   ]);
 }
 
