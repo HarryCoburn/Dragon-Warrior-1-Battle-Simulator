@@ -22,9 +22,23 @@ const ENEMIES = ['Choose an enemy', 'slime', 'red slime', 'drakee', 'ghost', 'ma
 const LEVELS = numRange(30, 1);
 const WEAPONS = ['Unarmed', 'Bamboo Pole', 'Club', 'Copper Sword', 'Hand Axe', 'Broad Sword', 'Flame Sword', "Erdrick's Sword"];
 const ARMORS = ['Naked', 'Clothes', 'Leather Armor', 'Chain Mail', 'Half Plate', 'Full Plate', 'Magic Armor', "Erdrick's Armor"];
+const SHIELDS = ['Naked', 'Small Shield', 'Large Shield', 'Silver Shield'];
 const statLine = (className, label, value) =>
   div({className}, `${label}: ${value}`);
 const statLineClasses = 'pv2 ph2 dib';
+
+/**
+ * [shieldOptions description]
+ * @param  {[type]} selectedShield [description]
+ * @return {[type]}                [description]
+ */
+function shieldOptions(selectedShield) {
+  return R.map(
+      (shield) =>
+        option({value: shield, selected: selectedShield === shield}, shield),
+      SHIELDS
+  );
+}
 
 /**
  * [armorOptions description]
@@ -85,7 +99,7 @@ function levelOptions(selectedLevel) {
  * @return {[type]}          [description]
  */
 function playerBlock(dispatch, player) {
-  const {hp, weapon, armor} = player;
+  const {hp, weapon, armor, shield} = player;
   return div({className: 'w-25'}, [
     div({}, 'Player Name:'),
     input({
@@ -112,9 +126,17 @@ function playerBlock(dispatch, player) {
     },
     armorOptions(player.armor),
     ),
+    div({}, 'Player Shield:'),
+    select({
+      className: 'db pa2 ba input-reset br1 bg-white ba b--black',
+      onchange: (e) => dispatch(shieldMsg(e.target.value)),
+    },
+    shieldOptions(player.shield),
+    ),
     statLine(statLineClasses, 'Player Health', hp),
     statLine(statLineClasses, 'Player Weapon', weapon.name),
     statLine(statLineClasses, 'Player Armor', armor.name),
+    statLine(statLineClasses, 'Player Armor', shield.name),
   ]);
 }
 
@@ -174,7 +196,7 @@ function view(dispatch, model) {
         battleText(model.battleText),
     ),
     button({className: '', onclick: (e) => dispatch(fightMsg(player, currentEnemy))}, 'Fight'),
-    statsBlock(dispatch, player, currentEnemy, model),    
+    statsBlock(dispatch, player, currentEnemy, model),
     pre(JSON.stringify(model, null, 2)),
   ]);
 }

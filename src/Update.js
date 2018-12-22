@@ -2,18 +2,26 @@
 import {fight} from './Battle.js';
 
 const MSGS = {
-  FIGHT: 'FIGHT',
   CHANGE_ARMOR: 'CHANGE_ARMOR',
   CHANGE_ENEMY: 'CHANGE_ENEMY',
   CHANGE_LEVEL: 'CHANGE_LEVEL',
   CHANGE_NAME: 'CHANGE_NAME',
+  CHANGE_SHIELD: 'CHANGE_SHIELD',
   CHANGE_STATS: 'CHANGE_STATS',
   CHANGE_WEAPON: 'CHANGE_WEAPON',
+  FIGHT: 'FIGHT',
   FIGHT_CLEANUP: 'FIGHT_CLEANUP',
 };
 const getSum = (total, num) => total + num;
 
 const fightCleanupMsg = {type: MSGS.FIGHT_CLEANUP};
+
+export function shieldMsg(shield) {
+  return {
+    type: MSGS.CHANGE_SHIELD,
+    shield,
+  };
+}
 
 export function armorMsg(armor) {
   return {
@@ -149,6 +157,13 @@ function update(msg, model) {
       case MSGS.CHANGE_ARMOR: {
         const {armor} = msg;
         const updatedPlayer = {...model.player, armor: model.armors[armor]};
+        model = {...model, player: updatedPlayer};
+        break;
+      }
+
+      case MSGS.CHANGE_SHIELD: {
+        const {shield} = msg;
+        const updatedPlayer = {...model.player, armor: model.shields[shield]};
         model = {...model, player: updatedPlayer};
         break;
       }
