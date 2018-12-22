@@ -69,7 +69,7 @@ export function fight(player, enemy) {
 function damageRanges(player, enemy) {
   // Basic enemy attack calculations
   const enemyAttack = enemy.strength;
-  const heroDefense = Math.floor(player.agility/2);
+  const heroDefense = Math.floor((player.agility + player.armor.mod)/2);
   const heroHighDefense = heroDefense >= enemyAttack;
   const values = {};
   // Enemy attack range calculation

@@ -1,7 +1,7 @@
 import hh from 'hyperscript-helpers';
 import {h} from 'virtual-dom';
 import * as R from 'ramda';
-import {fightMsg, enemyMsg, levelMsg, nameMsg, weaponMsg} from './Update';
+import {fightMsg, enemyMsg, levelMsg, nameMsg, weaponMsg, armorMsg} from './Update';
 
 const {
   div,
@@ -21,9 +21,23 @@ const numRange = (size, startAt = 0) =>
 const ENEMIES = ['Choose an enemy', 'slime', 'red slime', 'drakee', 'ghost', 'magician', 'magidrakee', 'scorpion'];
 const LEVELS = numRange(30, 1);
 const WEAPONS = ['Unarmed', 'Bamboo Pole', 'Club', 'Copper Sword', 'Hand Axe', 'Broad Sword', 'Flame Sword', "Erdrick's Sword"];
+const ARMORS = ['Naked', 'Clothes', 'Leather Armor', 'Chain Mail', 'Half Plate', 'Full Plate', 'Magic Armor', "Erdrick's Armor"];
 const statLine = (className, label, value) =>
   div({className}, `${label}: ${value}`);
 const statLineClasses = 'pv2 ph2 dib';
+
+/**
+ * [armorOptions description]
+ * @param  {[type]} selectedArmor [description]
+ * @return {[type]}               [description]
+ */
+function armorOptions(selectedArmor) {
+  return R.map(
+      (armor) =>
+        option({value: armor, selected: selectedArmor === armor}, armor),
+      ARMORS
+  );
+}
 
 /**
  * [weaponOptions description]
@@ -71,7 +85,7 @@ function levelOptions(selectedLevel) {
  * @return {[type]}          [description]
  */
 function playerBlock(dispatch, player) {
-  const {hp, weapon} = player;
+  const {hp, weapon, armor} = player;
   return div({className: 'w-25'}, [
     div({}, 'Player Name:'),
     input({
@@ -91,8 +105,16 @@ function playerBlock(dispatch, player) {
     },
     weaponOptions(player.weapon),
     ),
+    div({}, 'Player Armor:'),
+    select({
+      className: 'db pa2 ba input-reset br1 bg-white ba b--black',
+      onchange: (e) => dispatch(armorMsg(e.target.value)),
+    },
+    armorOptions(player.armor),
+    ),
     statLine(statLineClasses, 'Player Health', hp),
     statLine(statLineClasses, 'Player Weapon', weapon.name),
+    statLine(statLineClasses, 'Player Armor', armor.name),
   ]);
 }
 
@@ -151,8 +173,8 @@ function view(dispatch, model) {
     div('#scrollbox', {className: 'h5 overflow-y-scroll'},
         battleText(model.battleText),
     ),
-    statsBlock(dispatch, player, currentEnemy, model),
     button({className: '', onclick: (e) => dispatch(fightMsg(player, currentEnemy))}, 'Fight'),
+    statsBlock(dispatch, player, currentEnemy, model),    
     pre(JSON.stringify(model, null, 2)),
   ]);
 }

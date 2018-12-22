@@ -12,7 +12,8 @@ const initModel = {
     agility: 4,
     hp: 15,
     mp: 0,
-    weapon: 'Unarmed',
+    weapon:  {name: "Unarmed", mod: 0},
+    armor: {name: "Naked", mod: 0},
   },
   enemy: {
     'slime': {
@@ -105,6 +106,16 @@ const initModel = {
       mod: 40,
     },
   },
+  armors: {
+    "Naked": {name: "Naked", mod: 0},
+    "Clothes": {name: "Clothes", mod: 2 },
+    "Leather Armor": {name: "Leather Armor", mod: 4},
+    "Chain Mail": {name: "Chain Mail", mod: 10},
+    "Half Plate": {name: "Half Plate", mod: 16},
+    "Full Plate": {name: "Full Plate", mod: 24},
+    "Magic Armor": {name: "Magic Armor", mod: 24},
+    "Erdrick's Armor": {name: "Erdrick's Armor", mod: 28},
+  }
 };
 
 export default initModel;
