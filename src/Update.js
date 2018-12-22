@@ -108,23 +108,29 @@ function update(msg, model) {
           model = {...model, battleText: [], cleanBattleText: false};
         }
         const {player, enemy} = msg;
-        const currRoundEnemy = (typeof enemy === 'string') ? model.enemy[enemy] : enemy;
-        const finishRound = fight(player, currRoundEnemy);
-        const {playerAfterRound,
-          enemyAfterRound,
-          playerBattleText,
-          enemyBattleText,
-          battleState} = finishRound;
-        if (!battleState) {
-          messageQueue.push(fightCleanupMsg);
+        if ((typeof enemy === 'string' && enemy !== '') || typeof enemy === 'object') {
+          const currRoundEnemy = (typeof enemy === 'object') ? enemy : model.enemy[enemy];
+          const finishRound = fight(player, currRoundEnemy);
+          const {playerAfterRound,
+            enemyAfterRound,
+            playerBattleText,
+            enemyBattleText,
+            battleState} = finishRound;
+          if (!battleState) {
+            messageQueue.push(fightCleanupMsg);
+          }
+          const updatedMsgs = [...model.battleText,
+            playerBattleText,
+            enemyBattleText];
+          model = {...model, battleText: updatedMsgs,
+            currentEnemy: enemyAfterRound,
+            player: playerAfterRound,
+            inBattle: battleState};
+        } else {
+          const updatedMsgs = [...model.battleText, 'Please choose an enemy!'];
+          model = {...model, battleText: updatedMsgs, cleanBattleText: true};
         }
-        const updatedMsgs = [...model.battleText,
-          playerBattleText,
-          enemyBattleText];
-        model = {...model, battleText: updatedMsgs,
-          currentEnemy: enemyAfterRound,
-          player: playerAfterRound,
-          inBattle: battleState};
+
         break;
       }
 
