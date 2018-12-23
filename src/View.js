@@ -8,7 +8,8 @@ import {fightMsg,
   weaponMsg,
   armorMsg,
   shieldMsg,
-healMsg,} from './Update';
+  healMsg,
+  healmoreMsg} from './Update';
 
 const {
   div,
@@ -25,7 +26,11 @@ const {
 const battleText = R.map((x) => p({}, x));
 const numRange = (size, startAt = 0) =>
   [...Array(size).keys()].map((i) => i + startAt);
-const ENEMIES = ['Choose an enemy', 'Slime', 'Red slime', 'Drakee', 'Ghost', 'Magician', 'Magidrakee', 'Scorpion'];
+const ENEMIES = ['Choose an enemy', 'Slime', 'Red slime', 'Drakee', 'Ghost', 'Magician', 'Magidrakee', 'Scorpion', 'Druin',
+'Poltergeist', 'Droll', 'Drakeema', 'Skeleton', 'Warlock', 'Metal Scorpion', 'Wolf', 'Wraith', 'Metal Slime', 'Specter', 'Wolflord',
+'Druinlord', 'Drollmagi', 'Wyvern', 'Rogue Scorpion', 'Wraith Knight', 'Golem', 'Goldman', 'Knight', 'Magiwyvern',
+'Demon Knight', 'Werewolf', 'Green Dragon', 'Starwyvern', 'Wizard', 'Axe Knight', 'Blue Dragon', 'Stoneman', 'Armored Knight',
+'Red Dragon', 'Dragonlord (first form)', 'Dragonlord (second form)' ];
 const LEVELS = numRange(30, 1);
 const WEAPONS = ['Unarmed', 'Bamboo Pole', 'Club', 'Copper Sword', 'Hand Axe', 'Broad Sword', 'Flame Sword', 'Erdrick\'s Sword'];
 const ARMORS = ['Naked', 'Clothes', 'Leather Armor', 'Chain Mail', 'Half Plate', 'Full Plate', 'Magic Armor', 'Erdrick\'s Armor'];
@@ -46,8 +51,14 @@ function buttonBlock(dispatch, player, model) {
   if (!inBattle) {
     return button({className: '', onclick: (e) => dispatch(fightMsg(player, enemy))}, 'Start Battle');
   }
-  return [button({className: '', onclick: (e) => dispatch(fightMsg(player, enemy))}, 'Attack'),
-  button({className: '', onclick: (e) => dispatch(healMsg(player.hp, player.maxhp))}, 'Heal')];
+  const buttons = [button({className: '', onclick: (e) => dispatch(fightMsg(player, enemy))}, 'Attack')];
+  if (player.level >= 3) {
+    buttons.push(button({className: '', onclick: (e) => dispatch(healMsg(player.hp, player.maxhp))}, 'Heal'));
+  }
+  if (player.level >= 17) {
+    buttons.push(button({className: '', onclick: (e) => dispatch(healmoreMsg(player.hp, player.maxhp))}, 'Healmore'));
+  }
+  return buttons;
 }
 
 
@@ -166,9 +177,10 @@ function playerBlock(dispatch, player) {
  * @return {[type]}          [description]
  */
 function playerStatsBlock(dispatch, player) {
-  const {hp, maxhp, mp, weapon, armor, shield} = player;
+  const {hp, maxhp, mp, weapon, armor, shield, level} = player;
   return div({className: 'w-25 mh3'}, [
     div({className: ''}, 'Player Stats:'),
+    statLine(statLineClasses, 'Player Level', `${level}`),
     statLine(statLineClasses, 'Player Health', `${hp} / ${maxhp}`),
     statLine(statLineClasses, 'Player Magic', mp),
     statLine(statLineClasses, 'Player Weapon', weapon.name),
@@ -195,7 +207,7 @@ function enemyBlock(dispatch, enemy, battleStatus) {
       enemyOptions(enemy),
       )]
     );
-  } else {    
+  } else {
     const {hp} = enemy;
     return div({className: 'w-25 mh3'}, [
       statLine(statLineClasses, 'Enemy Health', hp),

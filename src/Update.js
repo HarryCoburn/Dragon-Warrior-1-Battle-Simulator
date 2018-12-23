@@ -3,6 +3,9 @@ import {startFight, startEnemyRound} from './Battle.js';
 
 const MSGS = {
   CAST_HEAL: 'CAST_HEAL',
+  CAST_HEALMORE: 'CAST_HEALMORE',
+  CAST_HURT: 'CAST_HURT',
+  CAST_HURTMORE: 'CAST_HURTMORE',
   CHANGE_ARMOR: 'CHANGE_ARMOR',
   CHANGE_ENEMY: 'CHANGE_ENEMY',
   CHANGE_LEVEL: 'CHANGE_LEVEL',
@@ -18,8 +21,21 @@ const getSum = (total, num) => total + num;
 const fightCleanupMsg = {type: MSGS.FIGHT_CLEANUP};
 const enemyTurnMsg = {type: MSGS.ENEMY_TURN};
 const playerHeal = [10, 17];
+const playerHealmore = [85, 100];
+const playerHurt = [5, 12];
+const playerHurtmore = [58, 65];
 const getRandomArbitrary = (min, max) =>
   Math.random() * (max - min) + min;
+const healCost = 4;
+const healmoreCost = 10;
+
+export function healmoreMsg(hp, maxhp) {
+  return {
+    type: MSGS.CAST_HEALMORE,
+    hp,
+    maxhp,
+  };
+}
 
 /**
  * [healMsg description]
@@ -120,22 +136,57 @@ function update(msg, model) {
     const msg = messageQueue.pop();
     // console.log(msg);
     switch (msg.type) {
-      case MSGS.CAST_HEAL: {
+      case MSGS.CAST_HEAL: { // TODO, move to battle.js, merge with healmore code
         const {hp, maxhp} = msg;
-        const healMax = maxhp - hp;
-        const healAmt =
-          Math.floor(getRandomArbitrary(playerHeal[0], playerHeal[1]));
-        const finalHeal = (healMax < healAmt) ? healMax : healAmt;
-        const newPlayerHP = hp + finalHeal;
-        const updatedText = [...model.battleText];
-        if (finalHeal === 0) {
-          updatedText.push(`Player casts Heal! But their hit points were already at maximum!`);
+        const {mp} = model.player;
+        if (mp < healCost) {
+          const updatedText = [...model.battleText, `Player tries to cast Heal, but doesn't have enough MP!`];
+          messageQueue.push(enemyTurnMsg);
+          model = {...model, battleText: updatedText};
         } else {
-          updatedText.push(`Player casts Heal! Player is healed ${finalHeal} hit points`);
+          const newMP = mp - healCost;
+          const healMax = maxhp - hp;
+          const healAmt =
+          Math.floor(getRandomArbitrary(playerHeal[0], playerHeal[1]));
+          const finalHeal = (healMax < healAmt) ? healMax : healAmt;
+          const newPlayerHP = hp + finalHeal;
+          const updatedText = [...model.battleText];
+          if (finalHeal === 0) {
+            updatedText.push(`Player casts Heal! But their hit points were already at maximum!`);
+          } else {
+            updatedText.push(`Player casts Heal! Player is healed ${finalHeal} hit points`);
+          }
+          const updatedPlayer = {...model.player, hp: newPlayerHP, mp: newMP};
+          messageQueue.push(enemyTurnMsg);
+          model = {...model, player: updatedPlayer, battleText: updatedText};
         }
-        const updatedPlayer = {...model.player, hp: newPlayerHP};
-        messageQueue.push(enemyTurnMsg);
-        model = {...model, player: updatedPlayer, battleText: updatedText};
+        break;
+      }
+
+      case MSGS.CAST_HEALMORE: {
+        const {hp, maxhp} = msg;
+        const {mp} = model.player;
+        if (mp < healmoreCost) {
+          const updatedText = [...model.battleText, `Player tries to cast Healmore, but doesn't have enough MP!`];
+          messageQueue.push(enemyTurnMsg);
+          model = {...model, battleText: updatedText};
+        } else {
+          const newMP = mp - healmoreCost;
+          const healMax = maxhp - hp;
+          const healAmt =
+          Math.floor(getRandomArbitrary(playerHealmore[0], playerHealmore[1]));
+          const finalHeal = (healMax < healAmt) ? healMax : healAmt;
+          const newPlayerHP = hp + finalHeal;
+          const updatedText = [...model.battleText];
+          if (finalHeal === 0) {
+            updatedText.push(`Player casts Healmore! But their hit points were already at maximum!`);
+          } else {
+            updatedText.push(`Player casts Healmore! Player is healed ${finalHeal} hit points`);
+          }
+          const updatedPlayer = {...model.player, hp: newPlayerHP, mp: newMP};
+          messageQueue.push(enemyTurnMsg);
+          model = {...model, player: updatedPlayer, battleText: updatedText};
+        }
         break;
       }
 
@@ -182,7 +233,7 @@ function update(msg, model) {
           enemy: enemy,
           player: player,
           inBattle: inBattle};
-          break;
+        break;
       }
 
       case MSGS.FIGHT_CLEANUP: {
@@ -249,6 +300,7 @@ function update(msg, model) {
           strength: newStr,
           agility: newAgi,
           hp: newHP,
+          maxhp: newHP,
           mp: newMP};
         model = {...model, player: updatedPlayer};
         break;
