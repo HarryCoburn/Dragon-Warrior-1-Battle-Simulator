@@ -1,6 +1,6 @@
 const initModel = {
   battleText: [],
-  currentEnemy: '',
+  enemy: '',
   cleanBattleText: false,
   inBattle: false,
   player: {
@@ -17,7 +17,7 @@ const initModel = {
     armor: {name: 'Naked', mod: 0},
     shield: {name: 'Naked', mod: 0},
   },
-  enemy: {
+  enemies: {
     'Slime': {
       name: 'slime',
       strength: 5,

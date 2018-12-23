@@ -1,5 +1,5 @@
 // import * as R from 'ramda';
-import {fight} from './Battle.js';
+import {startFight, startEnemyRound} from './Battle.js';
 
 const MSGS = {
   CAST_HEAL: 'CAST_HEAL',
@@ -10,11 +10,13 @@ const MSGS = {
   CHANGE_SHIELD: 'CHANGE_SHIELD',
   CHANGE_STATS: 'CHANGE_STATS',
   CHANGE_WEAPON: 'CHANGE_WEAPON',
+  ENEMY_TURN: 'ENEMY_TURN',
   FIGHT: 'FIGHT',
   FIGHT_CLEANUP: 'FIGHT_CLEANUP',
 };
 const getSum = (total, num) => total + num;
 const fightCleanupMsg = {type: MSGS.FIGHT_CLEANUP};
+const enemyTurnMsg = {type: MSGS.ENEMY_TURN};
 const playerHeal = [10, 17];
 const getRandomArbitrary = (min, max) =>
   Math.random() * (max - min) + min;
@@ -132,6 +134,7 @@ function update(msg, model) {
           updatedText.push(`Player casts Heal! Player is healed ${finalHeal} hit points`);
         }
         const updatedPlayer = {...model.player, hp: newPlayerHP};
+        messageQueue.push(enemyTurnMsg);
         model = {...model, player: updatedPlayer, battleText: updatedText};
         break;
       }
@@ -141,37 +144,51 @@ function update(msg, model) {
         if (cleanBattleText) {
           model = {...model, battleText: [], cleanBattleText: false};
         }
-        const {player, enemy} = msg;
-        if ((typeof enemy === 'string' && enemy !== '') || typeof enemy === 'object') {
-          const currRoundEnemy = (typeof enemy === 'object') ? enemy : model.enemy[enemy];
-          const finishRound = fight(player, currRoundEnemy);
-          const {playerAfterRound,
-            enemyAfterRound,
-            playerBattleText,
-            enemyBattleText,
-            battleState} = finishRound;
-          if (!battleState) {
+        if ((typeof model.enemy === 'string' && model.enemy !== '') || typeof model.enemy === 'object') {
+          const currRoundEnemy = (typeof model.enemy === 'object') ? model.enemy : model.enemies[model.enemy];
+          const modelWithEnemy = {...model, enemy: currRoundEnemy};
+          // Now the player will have their turn...
+          const playerRound = startFight(modelWithEnemy);
+          const {player,
+            enemy,
+            battleText,
+            inBattle} = playerRound;
+          if (!inBattle) {
             messageQueue.push(fightCleanupMsg);
+          } else {
+            messageQueue.push(enemyTurnMsg);
           }
-          const updatedMsgs = [...model.battleText,
-            playerBattleText,
-            enemyBattleText];
-          model = {...model, battleText: updatedMsgs,
-            currentEnemy: enemyAfterRound,
-            player: playerAfterRound,
-            inBattle: battleState};
+          model = {...model, battleText: battleText,
+            enemy: enemy,
+            player: player,
+            inBattle: inBattle};
         } else {
           const updatedMsgs = [...model.battleText, 'Please choose an enemy!'];
           model = {...model, battleText: updatedMsgs, cleanBattleText: true};
         }
-
         break;
+      }
+
+      case MSGS.ENEMY_TURN: {
+        const enemyRound = startEnemyRound(model);
+        const {player,
+          enemy,
+          battleText,
+          inBattle} = enemyRound;
+        if (!inBattle) {
+          messageQueue.push(fightCleanupMsg);
+        }
+        model = {...model, battleText: battleText,
+          enemy: enemy,
+          player: player,
+          inBattle: inBattle};
+          break;
       }
 
       case MSGS.FIGHT_CLEANUP: {
         messageQueue.push(statsMsg);
         model = {...model,
-          currentEnemy: '',
+          enemy: '',
           cleanBattleText: true,
         };
         break;
@@ -210,7 +227,7 @@ function update(msg, model) {
 
       case MSGS.CHANGE_ENEMY: {
         const {enemy} = msg;
-        model = {...model, currentEnemy: enemy};
+        model = {...model, enemy: enemy};
         break;
       }
 
@@ -242,6 +259,7 @@ function update(msg, model) {
         return model;
     }
   }
+
   return model;
 }
 

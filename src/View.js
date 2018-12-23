@@ -42,11 +42,11 @@ const statLineClasses = 'pv2 ph2 dib';
  * @return {[type]}          [description]
  */
 function buttonBlock(dispatch, player, model) {
-  const {currentEnemy, inBattle} = model;
+  const {enemy, inBattle} = model;
   if (!inBattle) {
-    return button({className: '', onclick: (e) => dispatch(fightMsg(player, currentEnemy))}, 'Start Battle');
+    return button({className: '', onclick: (e) => dispatch(fightMsg(player, enemy))}, 'Start Battle');
   }
-  return [button({className: '', onclick: (e) => dispatch(fightMsg(player, currentEnemy))}, 'Attack'),
+  return [button({className: '', onclick: (e) => dispatch(fightMsg(player, enemy))}, 'Attack'),
   button({className: '', onclick: (e) => dispatch(healMsg(player.hp, player.maxhp))}, 'Heal')];
 }
 
@@ -184,7 +184,7 @@ function playerStatsBlock(dispatch, player) {
  * @param  {[type]} currentEnemy [description]
  * @return {[type]}              [description]
  */
-function enemyBlock(dispatch, enemy, battleStatus, currentEnemy) {
+function enemyBlock(dispatch, enemy, battleStatus) {
   if (!battleStatus) {
     return div({className: 'w-25 mh3'}, [
       div({}, 'Enemy:'),
@@ -195,8 +195,8 @@ function enemyBlock(dispatch, enemy, battleStatus, currentEnemy) {
       enemyOptions(enemy),
       )]
     );
-  } else {
-    const {hp} = currentEnemy;
+  } else {    
+    const {hp} = enemy;
     return div({className: 'w-25 mh3'}, [
       statLine(statLineClasses, 'Enemy Health', hp),
     ]);
@@ -214,7 +214,7 @@ function enemyBlock(dispatch, enemy, battleStatus, currentEnemy) {
 function statsBlock(dispatch, player, enemy, model) {
   return div({className: 'flex'}, [
     playerBlock(dispatch, player),
-    enemyBlock(dispatch, enemy, model.inBattle, model.currentEnemy),
+    enemyBlock(dispatch, enemy, model.inBattle),
     playerStatsBlock(dispatch, player),
   ]);
 }
@@ -226,14 +226,14 @@ function statsBlock(dispatch, player, enemy, model) {
  * @return {[function]}          [The final view to be rendered to the DOM]
  */
 function view(dispatch, model) {
-  const {player, currentEnemy} = model;
+  const {player, enemy} = model;
   return div({className: 'mw8 center'}, [
     h1({className: 'f2 pv2 bb'}, 'Dragon Quest 1 Battle Simulator'),
     div('#scrollbox', {className: 'h5 overflow-y-scroll'},
         battleText(model.battleText),
     ),
     buttonBlock(dispatch, player, model),
-    statsBlock(dispatch, player, currentEnemy, model),
+    statsBlock(dispatch, player, enemy, model),
     pre(JSON.stringify(model, null, 2)),
   ]);
 }
