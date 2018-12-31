@@ -150,7 +150,7 @@ function playerBlock(dispatch, player) {
     div({className: 'mv2'}, 'Player Level:'),
     select({
       className: 'db pa2 ba input-reset br1 bg-white ba b--black',
-      onchange: (e) => dispatch(levelMsg(e.target.value)),
+      onchange: (e) => dispatch(levelMsg(parseInt(e.target.value))), // parsing needed to avoid view bug
     },
     levelOptions(player.level),
     ),

@@ -238,7 +238,6 @@ function update(msg, model) {
       case MSGS.FIGHT: {
         model = doFight(model);
         const {inBattle} = model;
-        console.log(inBattle);
         if (!inBattle) {
           messageQueue.push(fightCleanupMsg);
         } else {
@@ -257,9 +256,9 @@ function update(msg, model) {
           enemy: enemy,
           player: player,
           inBattle: inBattle};
-          if (!inBattle) {
-            messageQueue.push(fightCleanupMsg);
-          }
+        if (!inBattle) {
+          messageQueue.push(fightCleanupMsg);
+        }
         break;
       }
 
@@ -295,7 +294,8 @@ function update(msg, model) {
       }
       case MSGS.CHANGE_LEVEL: {
         const {level} = msg;
-        const updatedPlayer = {...model.player, level: level};
+        const levelInt = parseInt(level);
+        const updatedPlayer = {...model.player, level: levelInt};
         model = {...model, player: updatedPlayer};
         messageQueue.push(statsMsg);
         break;
