@@ -15,15 +15,31 @@ const calculateEnemyHP = (enemyHP) =>
 
 /* Battle prep functions */
 
-export function doFight(model) {
+export function startBattle(model) {
+  // Clean the battle text
   const cleanModel = cleanBattleText(model);
   if (typeof cleanModel.enemy === 'object') {
-    const readyToFightModel = fightSetup(model);
-    return playerFight(readyToFightModel);
+    const preparedBattleModel = fightSetup(model);
+    const updatedMsgs = [...preparedBattleModel.battleText, `You are fighting the ${preparedBattleModel.enemy.name}`];
+    return {...preparedBattleModel, battleText: updatedMsgs};
+
   } else {
     const updatedMsgs = [...model.battleText, 'Please choose an enemy!'];
     return {...model, battleText: updatedMsgs, cleanBattleText: true};
   }
+}
+
+
+
+export function doFight(model) {
+
+//  if (typeof cleanModel.enemy === 'object') {
+  //  const readyToFightModel = fightSetup(model);
+    return playerFight(model);
+  //} else {
+  //  const updatedMsgs = [...model.battleText, 'Please choose an enemy!'];
+  //  return {...model, battleText: updatedMsgs, cleanBattleText: true};
+//  }
 }
 
 function fightSetup(model) {

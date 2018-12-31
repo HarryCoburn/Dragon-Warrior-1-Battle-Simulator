@@ -1,7 +1,8 @@
 import hh from 'hyperscript-helpers';
 import {h} from 'virtual-dom';
 import * as R from 'ramda';
-import {fightMsg,
+import {startBattleMsg,
+  fightMsg,
   enemyMsg,
   levelMsg,
   nameMsg,
@@ -50,7 +51,7 @@ const statLineClasses = 'pv2 ph2 dib';
 function buttonBlock(dispatch, player, model) {
   const {enemy, inBattle} = model;
   if (!inBattle) {
-    return button({className: '', onclick: (e) => dispatch(fightMsg(player, enemy))}, 'Start Battle');
+    return button({className: '', onclick: (e) => dispatch(startBattleMsg)}, 'Start Battle');
   }
   const buttons = [button({className: '', onclick: (e) => dispatch(fightMsg(player, enemy))}, 'Attack')];
   if (player.level >= 3) {

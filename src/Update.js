@@ -1,5 +1,5 @@
 // import * as R from 'ramda';
-import {doFight, startEnemyRound} from './Battle.js';
+import {startBattle, doFight, startEnemyRound} from './Battle.js';
 import {changeWeapon, changeArmor, changeShield} from './Inventory.js';
 import {changeStats, changeName} from './Stats.js';
 import {changeEnemy} from './Enemies.js';
@@ -20,6 +20,7 @@ const MSGS = {
   ENEMY_TURN: 'ENEMY_TURN',
   FIGHT: 'FIGHT',
   FIGHT_CLEANUP: 'FIGHT_CLEANUP',
+  START_BATTLE: 'START_BATTLE',
 };
 
 const capitalize = (x) => x.charAt(0).toUpperCase() + x.slice(1);
@@ -120,6 +121,7 @@ export function fightMsg(player, enemy) {
     enemy,
   };
 }
+export const startBattleMsg = {type: MSGS.START_BATTLE};
 const statsMsg = {type: MSGS.CHANGE_STATS};
 const fightCleanupMsg = {type: MSGS.FIGHT_CLEANUP};
 const enemyTurnMsg = {type: MSGS.ENEMY_TURN};
@@ -138,9 +140,14 @@ function update(msg, model) {
   while (messageQueue.length !== 0) {
     const msg = messageQueue.pop();
     console.log(msg);
-    console.log("Entering in with this model");
+    console.log("Entering update with this model");
     console.log(model);
     switch (msg.type) {
+      case MSGS.START_BATTLE: {
+        model = startBattle(model);
+        break;
+      }
+
       case MSGS.CAST_HURTMORE: {
         const {enemy, player} = model;
         const {hp} = enemy;
@@ -314,7 +321,7 @@ function update(msg, model) {
         return model;
     }
   }
-  console.log("Trying to return this to view:");
+  console.log("Exiting update with this model:");
   console.log(model);
   return model;
 };
