@@ -1,4 +1,4 @@
-export const Enemies = {
+const ENEMIES = {
     'Slime': {
       name: 'slime',
       strength: 5,
@@ -241,4 +241,6 @@ export const Enemies = {
     },
   }
 
-export default Enemies;
+export function changeEnemy(msg) {
+  return ENEMIES[msg.enemy];
+};

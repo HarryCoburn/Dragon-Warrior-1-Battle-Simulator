@@ -2,6 +2,7 @@
 import {startFight, startEnemyRound} from './Battle.js';
 import {changeWeapon, changeArmor, changeShield} from './Inventory.js';
 import {changeStats, changeName} from './Stats.js';
+import {changeEnemy} from './Enemies.js';
 
 const MSGS = {
   CAST_HEAL: 'CAST_HEAL',
@@ -22,10 +23,6 @@ const MSGS = {
 };
 
 const capitalize = (x) => x.charAt(0).toUpperCase() + x.slice(1);
-const fightCleanupMsg = {type: MSGS.FIGHT_CLEANUP};
-const enemyTurnMsg = {type: MSGS.ENEMY_TURN};
-export const hurtMsg = {type: MSGS.CAST_HURT};
-export const hurtmoreMsg = {type: MSGS.CAST_HURTMORE};
 const playerHeal = [10, 17];
 const playerHealmore = [85, 100];
 const playerHurt = [5, 12];
@@ -46,7 +43,6 @@ export function healmoreMsg(hp, maxhp) {
     maxhp,
   };
 }
-
 /**
  * [healMsg description]
  * @param  {[type]} hp [description]
@@ -60,28 +56,24 @@ export function healMsg(hp, maxhp) {
     maxhp,
   };
 }
-
 export function shieldMsg(shield) {
   return {
     type: MSGS.CHANGE_SHIELD,
     shield,
   };
 }
-
 export function armorMsg(armor) {
   return {
     type: MSGS.CHANGE_ARMOR,
     armor,
   };
 }
-
 export function weaponMsg(weapon) {
   return {
     type: MSGS.CHANGE_WEAPON,
     weapon,
   };
 }
-
 /**
  * [unitMsg Forms message object for changing the enemy ]
  * @param  {[string]} enemy [Name of the enemy]
@@ -93,7 +85,6 @@ export function enemyMsg(enemy) {
     enemy,
   };
 }
-
 /**
  * [levelMsg Forms message object for changing the level]
  * @param  {[int]} level [New level of player]
@@ -105,7 +96,6 @@ export function levelMsg(level) {
     level,
   };
 }
-
 /**
  * [nameMsg Forms message object for changing the name]
  * @param  {[string]} name [New name of player]
@@ -117,7 +107,6 @@ export function nameMsg(name) {
     name,
   };
 }
-
 /**
  * [fightMsg Message to start battle]
  * @param  {[object]} player [The player object]
@@ -131,8 +120,11 @@ export function fightMsg(player, enemy) {
     enemy,
   };
 }
-
 const statsMsg = {type: MSGS.CHANGE_STATS};
+const fightCleanupMsg = {type: MSGS.FIGHT_CLEANUP};
+const enemyTurnMsg = {type: MSGS.ENEMY_TURN};
+export const hurtMsg = {type: MSGS.CAST_HURT};
+export const hurtmoreMsg = {type: MSGS.CAST_HURTMORE};
 
 /**
  * [update Handles the update messages. Source of impurity]
@@ -303,28 +295,22 @@ function update(msg, model) {
         messageQueue.push(statsMsg);
         break;
       }
-
       case MSGS.CHANGE_WEAPON: {
         model = {...model, player: changeWeapon(msg, model)}
         break;
       }
-
       case MSGS.CHANGE_ARMOR: {
         model = {...model, player: changeArmor(msg, model)};
         break;
       }
-
       case MSGS.CHANGE_SHIELD: {
         model = {...model, player: changeShield(msg, model)};
         break;
       }
-
       case MSGS.CHANGE_ENEMY: {
-        const {enemy} = msg;
-        model = {...model, enemy: enemy};
+        model = {...model, enemy: changeEnemy(msg)};
         break;
       }
-
       case MSGS.CHANGE_LEVEL: {
         const {level} = msg;
         const updatedPlayer = {...model.player, level: level};
@@ -332,7 +318,6 @@ function update(msg, model) {
         messageQueue.push(statsMsg);
         break;
       }
-
       case MSGS.CHANGE_STATS: {
         model = {...model, player: changeStats(model)};
         break;
@@ -343,13 +328,7 @@ function update(msg, model) {
         return model;
     }
   }
-
   return model;
-}
-
-
-
-
-
+};
 
 export default update;
