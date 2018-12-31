@@ -9,7 +9,9 @@ import {fightMsg,
   armorMsg,
   shieldMsg,
   healMsg,
-  healmoreMsg} from './Update';
+  healmoreMsg,
+  hurtMsg,
+  hurtmoreMsg} from './Update';
 
 const {
   div,
@@ -27,10 +29,10 @@ const battleText = R.map((x) => p({}, x));
 const numRange = (size, startAt = 0) =>
   [...Array(size).keys()].map((i) => i + startAt);
 const ENEMIES = ['Choose an enemy', 'Slime', 'Red slime', 'Drakee', 'Ghost', 'Magician', 'Magidrakee', 'Scorpion', 'Druin',
-'Poltergeist', 'Droll', 'Drakeema', 'Skeleton', 'Warlock', 'Metal Scorpion', 'Wolf', 'Wraith', 'Metal Slime', 'Specter', 'Wolflord',
-'Druinlord', 'Drollmagi', 'Wyvern', 'Rogue Scorpion', 'Wraith Knight', 'Golem', 'Goldman', 'Knight', 'Magiwyvern',
-'Demon Knight', 'Werewolf', 'Green Dragon', 'Starwyvern', 'Wizard', 'Axe Knight', 'Blue Dragon', 'Stoneman', 'Armored Knight',
-'Red Dragon', 'Dragonlord (first form)', 'Dragonlord (second form)' ];
+  'Poltergeist', 'Droll', 'Drakeema', 'Skeleton', 'Warlock', 'Metal Scorpion', 'Wolf', 'Wraith', 'Metal Slime', 'Specter', 'Wolflord',
+  'Druinlord', 'Drollmagi', 'Wyvern', 'Rogue Scorpion', 'Wraith Knight', 'Golem', 'Goldman', 'Knight', 'Magiwyvern',
+  'Demon Knight', 'Werewolf', 'Green Dragon', 'Starwyvern', 'Wizard', 'Axe Knight', 'Blue Dragon', 'Stoneman', 'Armored Knight',
+  'Red Dragon', 'Dragonlord (first form)', 'Dragonlord (second form)'];
 const LEVELS = numRange(30, 1);
 const WEAPONS = ['Unarmed', 'Bamboo Pole', 'Club', 'Copper Sword', 'Hand Axe', 'Broad Sword', 'Flame Sword', 'Erdrick\'s Sword'];
 const ARMORS = ['Naked', 'Clothes', 'Leather Armor', 'Chain Mail', 'Half Plate', 'Full Plate', 'Magic Armor', 'Erdrick\'s Armor'];
@@ -55,8 +57,14 @@ function buttonBlock(dispatch, player, model) {
   if (player.level >= 3) {
     buttons.push(button({className: '', onclick: (e) => dispatch(healMsg(player.hp, player.maxhp))}, 'Heal'));
   }
+  if (player.level >= 4) {
+    buttons.push(button({className: '', onclick: (e) => dispatch(hurtMsg)}, 'Hurt'));
+  }
   if (player.level >= 17) {
     buttons.push(button({className: '', onclick: (e) => dispatch(healmoreMsg(player.hp, player.maxhp))}, 'Healmore'));
+  }
+  if (player.level >= 19) {
+    buttons.push(button({className: '', onclick: (e) => dispatch(hurtmoreMsg)}, 'Hurtmore'));
   }
   return buttons;
 }

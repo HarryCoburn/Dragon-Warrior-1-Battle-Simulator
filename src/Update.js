@@ -1,11 +1,14 @@
 // import * as R from 'ramda';
 import {startFight, startEnemyRound} from './Battle.js';
+import {changeWeapon, changeArmor, changeShield} from './Inventory.js';
+import {changeStats} from './Stats.js';
 
 const MSGS = {
   CAST_HEAL: 'CAST_HEAL',
   CAST_HEALMORE: 'CAST_HEALMORE',
   CAST_HURT: 'CAST_HURT',
   CAST_HURTMORE: 'CAST_HURTMORE',
+  CAST_SPELL: 'CAST_SPELL',
   CHANGE_ARMOR: 'CHANGE_ARMOR',
   CHANGE_ENEMY: 'CHANGE_ENEMY',
   CHANGE_LEVEL: 'CHANGE_LEVEL',
@@ -18,8 +21,11 @@ const MSGS = {
   FIGHT_CLEANUP: 'FIGHT_CLEANUP',
 };
 const getSum = (total, num) => total + num;
+const capitalize = (x) => x.charAt(0).toUpperCase() + x.slice(1);
 const fightCleanupMsg = {type: MSGS.FIGHT_CLEANUP};
 const enemyTurnMsg = {type: MSGS.ENEMY_TURN};
+export const hurtMsg = {type: MSGS.CAST_HURT};
+export const hurtmoreMsg = {type: MSGS.CAST_HURTMORE};
 const playerHeal = [10, 17];
 const playerHealmore = [85, 100];
 const playerHurt = [5, 12];
@@ -27,7 +33,11 @@ const playerHurtmore = [58, 65];
 const getRandomArbitrary = (min, max) =>
   Math.random() * (max - min) + min;
 const healCost = 4;
+const hurtCost = 2;
 const healmoreCost = 10;
+const hurtmoreCost = 5;
+const stopspellCost = 2;
+const sleep = 2;
 
 export function healmoreMsg(hp, maxhp) {
   return {
@@ -44,7 +54,8 @@ export function healmoreMsg(hp, maxhp) {
  */
 export function healMsg(hp, maxhp) {
   return {
-    type: MSGS.CAST_HEAL,
+    type: MSGS.CAST_SPELL,
+    spell: MSGS.CAST_HEAL,
     hp,
     maxhp,
   };
@@ -134,8 +145,50 @@ function update(msg, model) {
   messageQueue.push(msg);
   while (messageQueue.length !== 0) {
     const msg = messageQueue.pop();
-    // console.log(msg);
+    console.log(msg);
     switch (msg.type) {
+      case MSGS.CAST_HURTMORE: {
+        const {enemy, player} = model;
+        const {hp} = enemy;
+        const {mp} = player;
+        if (mp < hurtmoreCost) {
+          const updatedText = [...model.battleText, `Player tries to cast Hurtmore, but doesn't have enough MP!`];
+          messageQueue.push(enemyTurnMsg);
+          model = {...model, battleText: updatedText};
+        } else {
+          const hurtDamage = Math.floor(getRandomArbitrary(playerHurtmore[0], playerHurtmore[1]));
+          const newHP = hp - hurtCost;
+          const updatedText = [...model.battleText];
+          updatedText.push(`Player casts Hurtmore! ${capitalize(enemy.name)} is hurt by ${hurtDamage} hit points`);
+          // Handle wins
+          const newEnemy = {...enemy, hp: newHP};
+          messageQueue.push(enemyTurnMsg);
+          model = {...model, enemy: newEnemy, battleText: updatedText};
+        }
+        break;
+      }
+
+      case MSGS.CAST_HURT: {
+        const {enemy, player} = model;
+        const {hp} = enemy;
+        const {mp} = player;
+        if (mp < hurtCost) {
+          const updatedText = [...model.battleText, `Player tries to cast Hurt, but doesn't have enough MP!`];
+          messageQueue.push(enemyTurnMsg);
+          model = {...model, battleText: updatedText};
+        } else {
+          const hurtDamage = Math.floor(getRandomArbitrary(playerHurt[0], playerHurt[1]));
+          const newHP = hp - hurtCost;
+          const updatedText = [...model.battleText];
+          updatedText.push(`Player casts Hurt! ${capitalize(enemy.name)} is hurt by ${hurtDamage} hit points`);
+          // Handle wins
+          const newEnemy = {...enemy, hp: newHP};
+          messageQueue.push(enemyTurnMsg);
+          model = {...model, enemy: newEnemy, battleText: updatedText};
+        }
+        break;
+      }
+
       case MSGS.CAST_HEAL: { // TODO, move to battle.js, merge with healmore code
         const {hp, maxhp} = msg;
         const {mp} = model.player;
@@ -256,23 +309,17 @@ function update(msg, model) {
       }
 
       case MSGS.CHANGE_WEAPON: {
-        const {weapon} = msg;
-        const updatedPlayer = {...model.player, weapon: model.weapons[weapon]};
-        model = {...model, player: updatedPlayer};
+        model = {...model, player: changeWeapon(msg, model)}
         break;
       }
 
       case MSGS.CHANGE_ARMOR: {
-        const {armor} = msg;
-        const updatedPlayer = {...model.player, armor: model.armors[armor]};
-        model = {...model, player: updatedPlayer};
+        model = {...model, player: changeArmor(msg, model)};
         break;
       }
 
       case MSGS.CHANGE_SHIELD: {
-        const {shield} = msg;
-        const updatedPlayer = {...model.player, shield: model.shields[shield]};
-        model = {...model, player: updatedPlayer};
+        model = {...model, player: changeShield(msg, model)};
         break;
       }
 
@@ -291,18 +338,7 @@ function update(msg, model) {
       }
 
       case MSGS.CHANGE_STATS: {
-        const player = model.player;
-        const {nameSum, progression, level} = player;
-        const baseLevelStats = model.levels[level];
-        const newStats = changeStats(nameSum, progression, baseLevelStats);
-        const [newStr, newAgi, newHP, newMP] = newStats;
-        const updatedPlayer = {...player,
-          strength: newStr,
-          agility: newAgi,
-          hp: newHP,
-          maxhp: newHP,
-          mp: newMP};
-        model = {...model, player: updatedPlayer};
+        model = {...model, player: changeStats(model)};
         break;
       }
       default:
@@ -315,55 +351,8 @@ function update(msg, model) {
   return model;
 }
 
-/**
- * [changeStats Generates new stats based on name and level]
- * @param  {[integer]} nameSum        [Number dervived from name as a modifier]
- * @param  {[integer]} progression    [Number marking progression type]
- * @param  {[object]} baseLevelStats [Array of base statistics for the level]
- * @return {[object]}                [New player statstics set]
- */
-function changeStats(nameSum, progression, baseLevelStats) {
-  const [strength, agility, hp, mp] = baseLevelStats;
-  const newStats = [];
-  switch (progression) {
-    case 0: // long term HP/MP, short term Str and Agi
-      newStats.push(Math.floor((strength * (9/10)) +
-      (Math.floor(nameSum/4)) % 4)),
-      newStats.push(Math.floor((agility * (9/10)) +
-       (Math.floor(nameSum/4)) % 4)),
-      newStats.push(hp);
-      newStats.push(mp);
-      break;
-    case 1: // long term Strength and HP, short term Agi and MP
-      newStats.push(strength);
-      newStats.push(Math.floor((agility * (9/10)) +
-      (Math.floor(nameSum/4)) % 4));
-      newStats.push(hp);
-      newStats.push(Math.floor((mp * (9/10)) +
-      (Math.floor(nameSum/4)) % 4));
-      break;
-    case 2: // Long term Agi and MP, short term Str and HP
-      newStats.push(Math.floor((strength * (9/10)) +
-      (Math.floor(nameSum/4)) % 4)),
-      newStats.push(agility);
-      newStats.push(Math.floor((hp * (9/10)) +
-      (Math.floor(nameSum/4)) % 4)),
-      newStats.push(mp);
-      break;
-    case 3: // Long term str and agi, short term hp and mp
-      newStats.push(strength);
-      newStats.push(agility);
-      newStats.push(Math.floor((hp * (9/10)) +
-      (Math.floor(nameSum/4)) % 4)),
-      newStats.push(Math.floor((mp * (9/10)) +
-      (Math.floor(nameSum/4)) % 4));
-      break;
-    default:
-      console.log('Something went wrong with the progression calculations!');
-      break;
-  }
-  return newStats;
-}
+
+
 
 // Such a stupid function, but necessary for simulation
 /**
