@@ -1,5 +1,5 @@
 // import * as R from 'ramda';
-import {startFight, startEnemyRound} from './Battle.js';
+import {cleanBattleText, startFight, startEnemyRound} from './Battle.js';
 import {changeWeapon, changeArmor, changeShield} from './Inventory.js';
 import {changeStats, changeName} from './Stats.js';
 import {changeEnemy} from './Enemies.js';
@@ -236,10 +236,7 @@ function update(msg, model) {
       }
 
       case MSGS.FIGHT: {
-        const {cleanBattleText} = model;
-        if (cleanBattleText) {
-          model = {...model, battleText: [], cleanBattleText: false};
-        }
+        model = cleanBattleText(model);
         if ((typeof model.enemy === 'string' && model.enemy !== '') || typeof model.enemy === 'object') {
           const currRoundEnemy = (typeof model.enemy === 'object') ? model.enemy : model.enemies[model.enemy];
           const modelWithEnemy = {...model, enemy: currRoundEnemy};
@@ -296,7 +293,7 @@ function update(msg, model) {
         break;
       }
       case MSGS.CHANGE_WEAPON: {
-        model = {...model, player: changeWeapon(msg, model)}
+        model = {...model, player: changeWeapon(msg, model)};
         break;
       }
       case MSGS.CHANGE_ARMOR: {

@@ -13,22 +13,32 @@ const calculateEnemyHP = (enemyHP) =>
   (typeof enemyHP !== 'object') ? enemyHP :
   getRandomArbitrary(enemyHP[0], enemyHP[1]);
 
+/* Battle prep functions */
+
+export function cleanBattleText(model) {
+  const {cleanBattleText} = model;
+  if (cleanBattleText) {
+    return {...model, battleText: [], cleanBattleText: false};
+  }
+  return model;
+}
+
 /* The Player's Round */
 
 export function startFight(model) {
- // Set that we're in battle and calculate the enemy's HP.
-const enemyWithHP = (!model.inBattle) ? {...model.enemy, hp:calculateEnemyHP(model.enemy.hp)} : model.enemy;
-const playerWithHP = (model.inBattle) ? {...model.player, hp: model.maxhp} : model.player;
+  // Set that we're in battle and calculate the enemy's HP.
+  const enemyWithHP = (!model.inBattle) ? {...model.enemy, hp: calculateEnemyHP(model.enemy.hp)} : model.enemy;
+  const playerWithHP = (model.inBattle) ? {...model.player, hp: model.maxhp} : model.player;
   // TODO Determine who goes first, assume player for now
   const battleModel = {player: playerWithHP,
-  enemy: enemyWithHP,
-  battleText: model.battleText,
-  inBattle: true};
-return playerRound(battleModel);
+    enemy: enemyWithHP,
+    battleText: model.battleText,
+    inBattle: true};
+  return playerRound(battleModel);
 }
 
 function playerRound(battleModel) {
-  const {player, enemy} = battleModel
+  const {player, enemy} = battleModel;
   const damageToEnemy = playerDamage(player, enemy);
   const enemyAfterRound = {...enemy, hp: enemy.hp - damageToEnemy};
   const afterPlayerRoundModel = {...battleModel, enemy: enemyAfterRound};
@@ -48,7 +58,7 @@ function playerDamage(player, enemy) {
     const playerHigh = highDamage(heroAttack, enemyDefense);
     const playerDamage = getRandomArbitrary(playerLow, playerHigh);
     return isPlayerDamageLow(playerDamage);
-}
+  }
 }
 
 function isPlayerDamageLow(playerDamage) {
@@ -76,15 +86,15 @@ function playerBattleMessages(model, damage) {
 
 export function startEnemyRound(model) {
   const {player, enemy, battleText, inBattle} = model;
-  const battleModel = { player: model.player,
-  enemy: enemy,
-  battleText: model.battleText,
-  inBattle };
+  const battleModel = {player: model.player,
+    enemy: enemy,
+    battleText: model.battleText,
+    inBattle};
   return enemyRound(battleModel);
 }
 
 function enemyRound(model) {
-  const {player, enemy} = model
+  const {player, enemy} = model;
   const damageToPlayer = enemyDamage(player, enemy);
   const playerAfterRound = {...player, hp: player.hp - damageToPlayer};
   const afterEnemyRoundModel = {...model, player: playerAfterRound};
