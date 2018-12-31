@@ -30,6 +30,7 @@ const LEVELS = {
   29: [135, 120, 200, 190],
   30: [140, 130, 210, 200],
 };
+const getSum = (total, num) => total + num;
 
 export function changeStats(model) {
   const {player} = model;
@@ -42,7 +43,7 @@ export function changeStats(model) {
     agility: newAgi,
     hp: newHP,
     maxhp: newHP,
-    mp: newMP};  
+    mp: newMP};
 }
 
 /**
@@ -93,4 +94,43 @@ function statsCalc(nameSum, progression, baseLevelStats) {
       break;
   }
   return newStats;
+}
+
+// Such a stupid function, but necessary for simulation
+/**
+ * [changeName computes the necessary variables for
+ *  stat computation based on name]
+ * @param  {[string]} name [Player's name]
+ * @return {[object]}      [Name sum and progression type]
+ */
+export function changeName(msg, model) {
+  const {name} = msg;
+  const {player} = model;
+  const letters = name.split('').slice(0, 4); // Get the first four letters of the name.
+  // The columns of the name entry screen  in the original game
+  // correspond to different numbers. I'm omitting the punctuation
+  // and defaulting everything to 0 that isn't a lower or uppercase letter.
+  const sum = letters.map((x) => {
+    if ('gwM'.indexOf(x) > -1) return 0;
+    if ('hxN'.indexOf(x) > -1) return 1;
+    if ('iyO'.indexOf(x) > -1) return 2;
+    if ('jzP'.indexOf(x) > -1) return 3;
+    if ('kAQ'.indexOf(x) > -1) return 4;
+    if ('lBR'.indexOf(x) > -1) return 5;
+    if ('mCS'.indexOf(x) > -1) return 6;
+    if ('nDT'.indexOf(x) > -1) return 7;
+    if ('oEU'.indexOf(x) > -1) return 8;
+    if ('pFV'.indexOf(x) > -1) return 9;
+    if ('aqGW'.indexOf(x) > -1) return 10;
+    if ('brHX'.indexOf(x) > -1) return 11;
+    if ('csIY'.indexOf(x) > -1) return 12;
+    if ('dtJZ'.indexOf(x) > -1) return 13;
+    if ('euK'.indexOf(x) > -1) return 14;
+    if ('fvL'.indexOf(x) > -1) return 15;
+    return 0;
+  }
+  ).reduce(getSum);
+  // Get the progression type, an integer from 0 to 3
+  const type = Math.floor(sum % 4);
+  return {...player, name: name, nameSum: sum, progression: type};
 }
