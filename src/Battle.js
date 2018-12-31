@@ -15,7 +15,26 @@ const calculateEnemyHP = (enemyHP) =>
 
 /* Battle prep functions */
 
-export function cleanBattleText(model) {
+export function doFight(model) {
+  const cleanModel = cleanBattleText(model);
+  if (typeof cleanModel.enemy === 'object') {
+    const readyToFightModel = fightSetup(model);
+    return playerFight(readyToFightModel);
+  } else {
+    const updatedMsgs = [...model.battleText, 'Please choose an enemy!'];
+    return {...model, battleText: updatedMsgs, cleanBattleText: true};
+  }
+}
+
+function fightSetup(model) {
+  // Set the HP based on current battle status
+  const enemyWithHP = (!model.inBattle) ? {...model.enemy, hp: calculateEnemyHP(model.enemy.hp)} : model.enemy;
+  const playerWithHP = (!model.inBattle) ? {...model.player, hp: model.player.maxhp} : model.player;
+  // Set that we're fighting
+  return {...model, player: playerWithHP, enemy: enemyWithHP, inBattle: true};
+}
+
+function cleanBattleText(model) {
   const {cleanBattleText} = model;
   if (cleanBattleText) {
     return {...model, battleText: [], cleanBattleText: false};
@@ -25,23 +44,11 @@ export function cleanBattleText(model) {
 
 /* The Player's Round */
 
-export function startFight(model) {
-  // Set that we're in battle and calculate the enemy's HP.
-  const enemyWithHP = (!model.inBattle) ? {...model.enemy, hp: calculateEnemyHP(model.enemy.hp)} : model.enemy;
-  const playerWithHP = (model.inBattle) ? {...model.player, hp: model.maxhp} : model.player;
-  // TODO Determine who goes first, assume player for now
-  const battleModel = {player: playerWithHP,
-    enemy: enemyWithHP,
-    battleText: model.battleText,
-    inBattle: true};
-  return playerRound(battleModel);
-}
-
-function playerRound(battleModel) {
-  const {player, enemy} = battleModel;
+function playerFight(model) {
+  const {player, enemy} = model;
   const damageToEnemy = playerDamage(player, enemy);
   const enemyAfterRound = {...enemy, hp: enemy.hp - damageToEnemy};
-  const afterPlayerRoundModel = {...battleModel, enemy: enemyAfterRound};
+  const afterPlayerRoundModel = {...model, enemy: enemyAfterRound};
   return playerBattleMessages(afterPlayerRoundModel, damageToEnemy);
 }
 
@@ -85,18 +92,19 @@ function playerBattleMessages(model, damage) {
 /* The Enemy's Round */
 
 export function startEnemyRound(model) {
-  const {player, enemy, battleText, inBattle} = model;
-  const battleModel = {player: model.player,
-    enemy: enemy,
-    battleText: model.battleText,
-    inBattle};
-  return enemyRound(battleModel);
+  console.log(model.player);
+  return enemyRound(model);
 }
 
 function enemyRound(model) {
   const {player, enemy} = model;
   const damageToPlayer = enemyDamage(player, enemy);
+  console.log("Current player HP is: " + player.hp);
+  console.log("Trying to Deal = " + damageToPlayer);
+  console.log('Player HP should be' + (player.hp - damageToPlayer));
   const playerAfterRound = {...player, hp: player.hp - damageToPlayer};
+
+  console.log("Player HP = " + playerAfterRound.hp);
   const afterEnemyRoundModel = {...model, player: playerAfterRound};
   return enemyBattleMessages(afterEnemyRoundModel, damageToPlayer);
 }

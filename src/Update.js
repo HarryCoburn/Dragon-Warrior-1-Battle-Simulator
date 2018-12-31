@@ -1,5 +1,5 @@
 // import * as R from 'ramda';
-import {cleanBattleText, startFight, startEnemyRound} from './Battle.js';
+import {doFight, startFight, startEnemyRound} from './Battle.js';
 import {changeWeapon, changeArmor, changeShield} from './Inventory.js';
 import {changeStats, changeName} from './Stats.js';
 import {changeEnemy} from './Enemies.js';
@@ -236,28 +236,13 @@ function update(msg, model) {
       }
 
       case MSGS.FIGHT: {
-        model = cleanBattleText(model);
-        if ((typeof model.enemy === 'string' && model.enemy !== '') || typeof model.enemy === 'object') {
-          const currRoundEnemy = (typeof model.enemy === 'object') ? model.enemy : model.enemies[model.enemy];
-          const modelWithEnemy = {...model, enemy: currRoundEnemy};
-          // Now the player will have their turn...
-          const playerRound = startFight(modelWithEnemy);
-          const {player,
-            enemy,
-            battleText,
-            inBattle} = playerRound;
-          if (!inBattle) {
-            messageQueue.push(fightCleanupMsg);
-          } else {
-            messageQueue.push(enemyTurnMsg);
-          }
-          model = {...model, battleText: battleText,
-            enemy: enemy,
-            player: player,
-            inBattle: inBattle};
+        model = doFight(model);
+        const {inBattle} = model;
+        console.log(inBattle);
+        if (!inBattle) {
+          messageQueue.push(fightCleanupMsg);
         } else {
-          const updatedMsgs = [...model.battleText, 'Please choose an enemy!'];
-          model = {...model, battleText: updatedMsgs, cleanBattleText: true};
+          messageQueue.push(enemyTurnMsg);
         }
         break;
       }
@@ -268,13 +253,13 @@ function update(msg, model) {
           enemy,
           battleText,
           inBattle} = enemyRound;
-        if (!inBattle) {
-          messageQueue.push(fightCleanupMsg);
-        }
         model = {...model, battleText: battleText,
           enemy: enemy,
           player: player,
           inBattle: inBattle};
+          if (!inBattle) {
+            messageQueue.push(fightCleanupMsg);
+          }
         break;
       }
 
