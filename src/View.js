@@ -24,11 +24,10 @@ const {
   option,
 } = hh(h);
 
-
 const battleText = R.map((x) => p({}, x));
 const numRange = (size, startAt = 0) =>
   [...Array(size).keys()].map((i) => i + startAt);
-const ENEMIES = ['Choose an enemy', 'Slime', 'Red slime', 'Drakee', 'Ghost', 'Magician', 'Magidrakee', 'Scorpion', 'Druin',
+const ENEMIES = ['Choose an enemy', 'Slime', 'Red Slime', 'Drakee', 'Ghost', 'Magician', 'Magidrakee', 'Scorpion', 'Druin',
   'Poltergeist', 'Droll', 'Drakeema', 'Skeleton', 'Warlock', 'Metal Scorpion', 'Wolf', 'Wraith', 'Metal Slime', 'Specter', 'Wolflord',
   'Druinlord', 'Drollmagi', 'Wyvern', 'Rogue Scorpion', 'Wraith Knight', 'Golem', 'Goldman', 'Knight', 'Magiwyvern',
   'Demon Knight', 'Werewolf', 'Green Dragon', 'Starwyvern', 'Wizard', 'Axe Knight', 'Blue Dragon', 'Stoneman', 'Armored Knight',
@@ -115,6 +114,9 @@ function weaponOptions(selectedWeapon) {
  * @return {[type]}               [description]
  */
 function enemyOptions(selectedEnemy) {
+  if (selectedEnemy === undefined) {
+    selectedEnemy = '';
+  }
   return R.map(
       (enemy) =>
         option({value: enemy, selected: selectedEnemy === enemy}, enemy),
@@ -200,19 +202,19 @@ function playerStatsBlock(dispatch, player) {
  * [enemyBlock description]
  * @param  {[type]} dispatch     [description]
  * @param  {[type]} enemy        [description]
- * @param  {[type]} battleStatus [description]
+ * @param  {[type]} inBattle [description]
  * @param  {[type]} currentEnemy [description]
  * @return {[type]}              [description]
  */
-function enemyBlock(dispatch, enemy, battleStatus) {
-  if (!battleStatus) {
+function enemyBlock(dispatch, enemy, inBattle) {
+  if (!inBattle) {
     return div({className: 'w-25 mh3'}, [
       div({}, 'Enemy:'),
       select({
         className: 'db pa2 ba input-reset br1 bg-white ba b--black',
         onchange: (e) => dispatch(enemyMsg(e.target.value)),
       },
-      enemyOptions(enemy),
+      enemyOptions(enemy.name),
       )]
     );
   } else {

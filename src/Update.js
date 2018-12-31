@@ -1,5 +1,5 @@
 // import * as R from 'ramda';
-import {doFight, startFight, startEnemyRound} from './Battle.js';
+import {doFight, startEnemyRound} from './Battle.js';
 import {changeWeapon, changeArmor, changeShield} from './Inventory.js';
 import {changeStats, changeName} from './Stats.js';
 import {changeEnemy} from './Enemies.js';
@@ -138,6 +138,8 @@ function update(msg, model) {
   while (messageQueue.length !== 0) {
     const msg = messageQueue.pop();
     console.log(msg);
+    console.log("Entering in with this model");
+    console.log(model);
     switch (msg.type) {
       case MSGS.CAST_HURTMORE: {
         const {enemy, player} = model;
@@ -264,8 +266,9 @@ function update(msg, model) {
 
       case MSGS.FIGHT_CLEANUP: {
         messageQueue.push(statsMsg);
+        const enemyName = capitalize(model.enemy.name);
+        messageQueue.push(enemyMsg(enemyName));
         model = {...model,
-          enemy: '',
           cleanBattleText: true,
         };
         break;
@@ -294,13 +297,14 @@ function update(msg, model) {
       }
       case MSGS.CHANGE_LEVEL: {
         const {level} = msg;
-        const levelInt = parseInt(level);
-        const updatedPlayer = {...model.player, level: levelInt};
+        const updatedPlayer = {...model.player, level: level};
         model = {...model, player: updatedPlayer};
         messageQueue.push(statsMsg);
         break;
       }
       case MSGS.CHANGE_STATS: {
+        console.log("Entering Change Stats")
+        console.log(model);
         model = {...model, player: changeStats(model)};
         break;
       }
@@ -310,6 +314,8 @@ function update(msg, model) {
         return model;
     }
   }
+  console.log("Trying to return this to view:");
+  console.log(model);
   return model;
 };
 
