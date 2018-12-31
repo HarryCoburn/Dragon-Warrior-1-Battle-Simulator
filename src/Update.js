@@ -1,5 +1,5 @@
 // import * as R from 'ramda';
-import {startBattle, doFight, startEnemyRound} from './Battle.js';
+import {startBattle, playerFight, startEnemyRound, playerSpell} from './Battle.js';
 import {changeWeapon, changeArmor, changeShield} from './Inventory.js';
 import {changeStats, changeName} from './Stats.js';
 import {changeEnemy} from './Enemies.js';
@@ -24,15 +24,15 @@ const MSGS = {
 };
 
 const capitalize = (x) => x.charAt(0).toUpperCase() + x.slice(1);
-const playerHeal = [10, 17];
-const playerHealmore = [85, 100];
+
+
 const playerHurt = [5, 12];
 const playerHurtmore = [58, 65];
 const getRandomArbitrary = (min, max) =>
   Math.random() * (max - min) + min;
-const healCost = 4;
+
 const hurtCost = 2;
-const healmoreCost = 10;
+
 const hurtmoreCost = 5;
 const stopspellCost = 2;
 const sleep = 2;
@@ -51,8 +51,7 @@ export function healmoreMsg(hp, maxhp) {
  */
 export function healMsg(hp, maxhp) {
   return {
-    type: MSGS.CAST_SPELL,
-    spell: MSGS.CAST_HEAL,
+    type: MSGS.CAST_HEAL,
     hp,
     maxhp,
   };
@@ -190,62 +189,19 @@ function update(msg, model) {
         break;
       }
 
-      case MSGS.CAST_HEAL: { // TODO, move to battle.js, merge with healmore code
-        const {hp, maxhp} = msg;
-        const {mp} = model.player;
-        if (mp < healCost) {
-          const updatedText = [...model.battleText, `Player tries to cast Heal, but doesn't have enough MP!`];
-          messageQueue.push(enemyTurnMsg);
-          model = {...model, battleText: updatedText};
-        } else {
-          const newMP = mp - healCost;
-          const healMax = maxhp - hp;
-          const healAmt =
-          Math.floor(getRandomArbitrary(playerHeal[0], playerHeal[1]));
-          const finalHeal = (healMax < healAmt) ? healMax : healAmt;
-          const newPlayerHP = hp + finalHeal;
-          const updatedText = [...model.battleText];
-          if (finalHeal === 0) {
-            updatedText.push(`Player casts Heal! But their hit points were already at maximum!`);
-          } else {
-            updatedText.push(`Player casts Heal! Player is healed ${finalHeal} hit points`);
-          }
-          const updatedPlayer = {...model.player, hp: newPlayerHP, mp: newMP};
-          messageQueue.push(enemyTurnMsg);
-          model = {...model, player: updatedPlayer, battleText: updatedText};
-        }
+      case MSGS.CAST_HEAL:
+      case MSGS.CAST_HEALMORE:  { // TODO, move to battle.js, merge with healmore code
+        model = playerSpell(msg, model);
+        console.log("Model after casting")
+        console.log(model);
+        messageQueue.push(enemyTurnMsg);
         break;
       }
 
-      case MSGS.CAST_HEALMORE: {
-        const {hp, maxhp} = msg;
-        const {mp} = model.player;
-        if (mp < healmoreCost) {
-          const updatedText = [...model.battleText, `Player tries to cast Healmore, but doesn't have enough MP!`];
-          messageQueue.push(enemyTurnMsg);
-          model = {...model, battleText: updatedText};
-        } else {
-          const newMP = mp - healmoreCost;
-          const healMax = maxhp - hp;
-          const healAmt =
-          Math.floor(getRandomArbitrary(playerHealmore[0], playerHealmore[1]));
-          const finalHeal = (healMax < healAmt) ? healMax : healAmt;
-          const newPlayerHP = hp + finalHeal;
-          const updatedText = [...model.battleText];
-          if (finalHeal === 0) {
-            updatedText.push(`Player casts Healmore! But their hit points were already at maximum!`);
-          } else {
-            updatedText.push(`Player casts Healmore! Player is healed ${finalHeal} hit points`);
-          }
-          const updatedPlayer = {...model.player, hp: newPlayerHP, mp: newMP};
-          messageQueue.push(enemyTurnMsg);
-          model = {...model, player: updatedPlayer, battleText: updatedText};
-        }
-        break;
-      }
+
 
       case MSGS.FIGHT: {
-        model = doFight(model);
+        model = playerFight(model);
         const {inBattle} = model;
         if (!inBattle) {
           messageQueue.push(fightCleanupMsg);
