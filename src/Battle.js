@@ -232,26 +232,36 @@ export function startEnemyRound(model) {
 }
 
 function enemyRound(model) {
-  const {player, enemy} = model;
+  const {enemy} = model;
   const chosenAttack = enemy.pattern.find(getAttack(sumOfWeights(enemy.pattern))).id;
-switch(chosenAttack)  {
-  case "ATTACK": {
-    const roundDone = enemyAttack(model);
-    return roundDone;
-    break;
+  switch (chosenAttack) {
+    case 'ATTACK': {
+      const roundDone = enemyAttack(model);
+      return roundDone;
+      break;
+    }
+    case 'HURT': {
+      const roundDone = enemyHurt(model, false);
+      return roundDone;
+      break;
+    }
+    case 'HURTMORE': {
+      const roundDone = enemyHurt(model, true);
+      return roundDone;
+      break;
+    }
   }
-}
 }
 
 function enemyAttack(model) {
-  const {player,enemy} = model;
+  const {player, enemy} = model;
   const damageToPlayer = enemyDamage(player, enemy);
-  //console.log('Current player HP is: ' + player.hp);
-  //console.log('Trying to Deal = ' + damageToPlayer);
-  //console.log('Player HP should be' + (player.hp - damageToPlayer));
+  // console.log('Current player HP is: ' + player.hp);
+  // console.log('Trying to Deal = ' + damageToPlayer);
+  // console.log('Player HP should be' + (player.hp - damageToPlayer));
   const playerAfterRound = {...player, hp: player.hp - damageToPlayer};
 
-  //console.log('Player HP = ' + playerAfterRound.hp);
+  // console.log('Player HP = ' + playerAfterRound.hp);
   const afterEnemyRoundModel = {...model, player: playerAfterRound};
   return enemyBattleMessages(afterEnemyRoundModel, damageToPlayer);
 }
@@ -288,3 +298,27 @@ function enemyBattleMessages(model, damage) {
     battleText,
   };
 }
+
+function enemyHurt(model, isHurtmore) {
+  const eHurtRange = [3,10];
+  const eHurtmoreRange = [30, 45];
+  const spellName = (isHurtmore) ? 'Hurtmore' : 'Hurt';
+  const {enemy, player} = model;
+  const {hp} = player;
+    const hurtDamage = (isHurtmore) ?
+      getRandomArbitrary(...eHurtmoreRange) :
+      getRandomArbitrary(...eHurtRange);
+    const newHP = hp - hurtDamage;
+    const updatedText = [...model.battleText];
+    updatedText.push(`${capitalize(enemy.name)} casts ${spellName}!`);
+    updatedText.push(` Player is hurt by ${hurtDamage} hit points.`);
+    const battleState = (newHP <= 0) ? false : true;
+    // Handle wins
+    const newEnemy = {...player, hp: newHP};
+    if (newHP <= 0) {
+      updatedText.push(`You have been defeated by the ${capitalize(enemy.name)}.`);
+    }
+    return {...model,
+      player: newPlayer,
+      battleText: updatedText, inBattle: battleState};
+  }
