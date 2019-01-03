@@ -24,16 +24,9 @@ const MSGS = {
 };
 
 const capitalize = (x) => x.charAt(0).toUpperCase() + x.slice(1);
-
-
-const playerHurt = [5, 12];
-const playerHurtmore = [58, 65];
 const getRandomArbitrary = (min, max) =>
   Math.random() * (max - min) + min;
 
-const hurtCost = 2;
-
-const hurtmoreCost = 5;
 const stopspellCost = 2;
 const sleep = 2;
 
@@ -147,58 +140,26 @@ function update(msg, model) {
         break;
       }
 
+      case MSGS.CAST_HURT:
       case MSGS.CAST_HURTMORE: {
-        const {enemy, player} = model;
-        const {hp} = enemy;
-        const {mp} = player;
-        if (mp < hurtmoreCost) {
-          const updatedText = [...model.battleText, `Player tries to cast Hurtmore, but doesn't have enough MP!`];
-          messageQueue.push(enemyTurnMsg);
-          model = {...model, battleText: updatedText};
+        model = playerSpell(msg, model);
+        const inBattle = model.inBattle;
+        if (!inBattle) {
+          messageQueue.push(fightCleanupMsg);
         } else {
-          const hurtDamage = Math.floor(getRandomArbitrary(playerHurtmore[0], playerHurtmore[1]));
-          const newHP = hp - hurtCost;
-          const updatedText = [...model.battleText];
-          updatedText.push(`Player casts Hurtmore! ${capitalize(enemy.name)} is hurt by ${hurtDamage} hit points`);
-          // Handle wins
-          const newEnemy = {...enemy, hp: newHP};
           messageQueue.push(enemyTurnMsg);
-          model = {...model, enemy: newEnemy, battleText: updatedText};
-        }
-        break;
-      }
-
-      case MSGS.CAST_HURT: {
-        const {enemy, player} = model;
-        const {hp} = enemy;
-        const {mp} = player;
-        if (mp < hurtCost) {
-          const updatedText = [...model.battleText, `Player tries to cast Hurt, but doesn't have enough MP!`];
-          messageQueue.push(enemyTurnMsg);
-          model = {...model, battleText: updatedText};
-        } else {
-          const hurtDamage = Math.floor(getRandomArbitrary(playerHurt[0], playerHurt[1]));
-          const newHP = hp - hurtCost;
-          const updatedText = [...model.battleText];
-          updatedText.push(`Player casts Hurt! ${capitalize(enemy.name)} is hurt by ${hurtDamage} hit points`);
-          // Handle wins
-          const newEnemy = {...enemy, hp: newHP};
-          messageQueue.push(enemyTurnMsg);
-          model = {...model, enemy: newEnemy, battleText: updatedText};
         }
         break;
       }
 
       case MSGS.CAST_HEAL:
-      case MSGS.CAST_HEALMORE:  { // TODO, move to battle.js, merge with healmore code
+      case MSGS.CAST_HEALMORE: {
         model = playerSpell(msg, model);
-        console.log("Model after casting")
+        console.log("Model after casting");
         console.log(model);
         messageQueue.push(enemyTurnMsg);
         break;
       }
-
-
 
       case MSGS.FIGHT: {
         model = playerFight(model);

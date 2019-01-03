@@ -11,13 +11,41 @@ const criticalDamageLow = (x) => x / 2;
 const criticalDamageHigh = (x) => x;
 const calculateEnemyHP = (enemyHP) =>
   (typeof enemyHP !== 'object') ? enemyHP :
-  getRandomArbitrary(enemyHP[0], enemyHP[1]);
+  getRandomArbitrary(...enemyHP);
 const healCost = 4;
 const healmoreCost = 10;
 const playerHealRange = [10, 17];
 const playerHealmoreRange = [85, 100];
+const hurtCost = 2;
+const hurtmoreCost = 5;
+const playerHurtRange = [5, 12];
+const playerHurtmoreRange = [58, 65];
+const resistLimit = 16;
+const dodgeLimit = 64;
+const resistCheck = (resistValue) =>
+  (getRandomArbitrary(1, resistLimit) <= resistValue) ? true : false;
+
+// Testing battle AI
+const sumOfWeights = (enemyAI) => enemyAI.reduce(function(memo, entry) {
+  return memo + entry.weight;
+}, 0);
+
+function getAttack(sumOfWeights) {
+  let random = Math.floor(Math.random() * (sumOfWeights + 1));
+
+  return function(attack) {
+    random -= attack.weight;
+    return random <= 0;
+  };
+}
+
 /* Battle prep functions */
 
+/**
+ * [startBattle description]
+ * @param  {[type]} model [description]
+ * @return {[type]}       [description]
+ */
 export function startBattle(model) {
   // Clean the battle text
   const cleanModel = cleanBattleText(model);
@@ -31,6 +59,11 @@ export function startBattle(model) {
   }
 }
 
+/**
+ * [fightSetup description]
+ * @param  {[type]} model [description]
+ * @return {[type]}       [description]
+ */
 function fightSetup(model) {
   // Set the HP based on current battle status
   const enemyWithHP = (!model.inBattle) ? {...model.enemy, hp: calculateEnemyHP(model.enemy.hp)} : model.enemy;
@@ -97,20 +130,34 @@ function playerBattleMessages(model, damage) {
 export function playerSpell(msg, model) {
   console.log(msg);
   switch (msg.type) {
-    case "CAST_HEAL": {
+    case 'CAST_HEAL': {
       return playerHeal(model, false);
       break;
     }
-    case "CAST_HEALMORE": {
-       return playerHeal(model, true);
+    case 'CAST_HEALMORE': {
+      return playerHeal(model, true);
+      break;
+    }
+    case 'CAST_HURT': {
+      return playerHurt(model, false);
+      break;
+    }
+    case 'CAST_HURTMORE': {
+      return playerHurt(model, true);
       break;
     }
     default:
-      console.log("Spell fell through switchblock!");
+      console.log('Spell fell through switchblock!');
       return model;
   }
 }
 
+/**
+ * [playerHeal description]
+ * @param  {[type]}  model      [description]
+ * @param  {Boolean} isHealmore [description]
+ * @return {[type]}             [description]
+ */
 function playerHeal(model, isHealmore) {
   const {player} = model;
   const {mp, hp, maxhp} = player;
@@ -122,10 +169,8 @@ function playerHeal(model, isHealmore) {
     const newMP = (isHealmore) ? mp - healmoreCost : mp - healCost;
     const healMax = maxhp - hp;
     const healAmt = (isHealmore) ?
-    Math.floor(getRandomArbitrary
-      (playerHealmoreRange[0], playerHealmoreRange[1])) :
-    Math.floor(getRandomArbitrary
-      (playerHealRange[0], playerHealRange[1]));
+    getRandomArbitrary(...playerHealmoreRange) :
+    getRandomArbitrary(...playerHealRange);
     const finalHeal = (healMax < healAmt) ? healMax : healAmt;
     const newPlayerHP = hp + finalHeal;
     const updatedText = [...model.battleText];
@@ -139,22 +184,74 @@ function playerHeal(model, isHealmore) {
   }
 }
 
+/**
+ * [playerHurt description]
+ * @param  {[type]}  model      [description]
+ * @param  {Boolean} isHurtmore [description]
+ * @return {[type]}             [description]
+ */
+function playerHurt(model, isHurtmore) {
+  const {enemy, player} = model;
+  const {hp, hurtR} = enemy;
+  const {mp} = player;
+  const spellName = (isHurtmore) ? 'Hurtmore' : 'Hurt';
+  if ((mp < hurtCost && !isHurtmore) || (mp < hurtmoreCost && isHurtmore)) {
+    const updatedText = [...model.battleText, `Player tries to cast ${spellName}, but doesn't have enough MP!`];
+    return {...model, battleText: updatedText};
+  } else {
+    const newMP = (isHurtmore) ? mp - hurtmoreCost : mp - hurtCost;
+    const newPlayer = {...player, mp: newMP};
+    const hurtDamage = (isHurtmore) ?
+      getRandomArbitrary(...playerHurtmoreRange) :
+      getRandomArbitrary(...playerHurtRange);
+    const newHP = hp - hurtDamage;
+    const updatedText = [...model.battleText];
+    updatedText.push(`Player casts Hurt!`);
+    const hurtResisted = resistCheck(hurtR);
+    if (hurtResisted === true) {
+      updatedText.push(`But the ${enemy.name} resisted!`);
+      return {...model, player: newPlayer, battleText: updatedText};
+    }
+    updatedText.push(` ${capitalize(enemy.name)} is hurt by ${hurtDamage} hit points`);
+    const battleState = (newHP <= 0) ? false : true;
+    // Handle wins
+    const newEnemy = {...enemy, hp: newHP};
+    if (newHP <= 0) {
+      updatedText.push(`You have defeated the ${capitalize(enemy.name)}`);
+    }
+    return {...model,
+      enemy: newEnemy, player: newPlayer,
+      battleText: updatedText, inBattle: battleState};
+  }
+}
+
 /* The Enemy's Round */
 
 export function startEnemyRound(model) {
-  console.log(model.player);
   return enemyRound(model);
 }
 
 function enemyRound(model) {
   const {player, enemy} = model;
+  const chosenAttack = enemy.pattern.find(getAttack(sumOfWeights(enemy.pattern))).id;
+switch(chosenAttack)  {
+  case "ATTACK": {
+    const roundDone = enemyAttack(model);
+    return roundDone;
+    break;
+  }
+}
+}
+
+function enemyAttack(model) {
+  const {player,enemy} = model;
   const damageToPlayer = enemyDamage(player, enemy);
-  console.log('Current player HP is: ' + player.hp);
-  console.log('Trying to Deal = ' + damageToPlayer);
-  console.log('Player HP should be' + (player.hp - damageToPlayer));
+  //console.log('Current player HP is: ' + player.hp);
+  //console.log('Trying to Deal = ' + damageToPlayer);
+  //console.log('Player HP should be' + (player.hp - damageToPlayer));
   const playerAfterRound = {...player, hp: player.hp - damageToPlayer};
 
-  console.log('Player HP = ' + playerAfterRound.hp);
+  //console.log('Player HP = ' + playerAfterRound.hp);
   const afterEnemyRoundModel = {...model, player: playerAfterRound};
   return enemyBattleMessages(afterEnemyRoundModel, damageToPlayer);
 }
