@@ -10,6 +10,7 @@ const MSGS = {
   CAST_HURT: 'CAST_HURT',
   CAST_HURTMORE: 'CAST_HURTMORE',
   CAST_SLEEP: 'CAST_SLEEP',
+  CAST_STOPSPELL: 'CAST_STOPSPELL',
   CHANGE_ARMOR: 'CHANGE_ARMOR',
   CHANGE_ENEMY: 'CHANGE_ENEMY',
   CHANGE_LEVEL: 'CHANGE_LEVEL',
@@ -24,11 +25,7 @@ const MSGS = {
 };
 
 const capitalize = (x) => x.charAt(0).toUpperCase() + x.slice(1);
-const getRandomArbitrary = (min, max) =>
-  Math.random() * (max - min) + min;
 
-const stopspellCost = 2;
-const sleep = 2;
 
 export function healmoreMsg(hp, maxhp) {
   return {
@@ -120,6 +117,7 @@ const enemyTurnMsg = {type: MSGS.ENEMY_TURN};
 export const hurtMsg = {type: MSGS.CAST_HURT};
 export const sleepMsg = {type: MSGS.CAST_SLEEP};
 export const hurtmoreMsg = {type: MSGS.CAST_HURTMORE};
+export const stopspellMsg = {type: MSGS.CAST_STOPSPELL};
 
 /**
  * [update Handles the update messages. Source of impurity]
@@ -155,7 +153,8 @@ function update(msg, model) {
 
       case MSGS.CAST_HEAL:
       case MSGS.CAST_HEALMORE:
-      case MSGS.CAST_SLEEP: {
+      case MSGS.CAST_SLEEP:
+      case MSGS.CAST_STOPSPELL: {
         model = playerSpell(msg, model);
         messageQueue.push(enemyTurnMsg);
         break;
@@ -188,6 +187,7 @@ function update(msg, model) {
         model = {...model,
           cleanBattleText: true,
           enemySleep: 0,
+          enemyStop: false,
         };
         break;
       }
