@@ -1,5 +1,5 @@
 const getRandomArbitrary = (min, max) =>
-  Math.floor(Math.random() * (max - min) + min);
+  Math.floor(Math.random() * (max - min + 1) + min);
 const coinFlip = () => Math.floor(Math.random() * 2) === 0;
 const capitalize = (x) => x.charAt(0).toUpperCase() + x.slice(1);
 const lowDamage = (x, y) => (x - (y/2)) / 4;
@@ -147,6 +147,10 @@ export function playerSpell(msg, model) {
       return playerHurt(model, true);
       break;
     }
+    case 'CAST_SLEEP': {
+      return playerSleep(model);
+      break;
+    }
     default:
       console.log('Spell fell through switchblock!');
       return model;
@@ -226,9 +230,67 @@ function playerHurt(model, isHurtmore) {
   }
 }
 
+/**
+ * [playerSleep description]
+ * @param  {[type]} model [description]
+ * @return {[type]}       [description]
+ */
+function playerSleep(model) {
+  const {enemy, player, enemySleep} = model;
+  const {mp} = player;
+  const {sleepR} = enemy;
+  const updatedText = [...model.battleText];
+  const sleepCost = 2;
+  if (mp < sleepCost) {
+    updatedText.push(`Player tries to cast Sleep, but doesn't have enough MP!`);
+    return {...model, battleText: updatedText};
+  } else {
+    const newMP = mp - sleepCost;
+    const newPlayer = {...player, mp: newMP};
+    updatedText.push(`Player casts Sleep!`);
+    if (enemySleep) {
+      updatedText.push(`But the ${enemy.name} is already asleep!`);
+      return {...model, player: newPlayer, battleText: updatedText};
+    }
+    const sleepResisted = resistCheck(sleepR);
+    if (sleepResisted === true) {
+      updatedText.push(`But the ${enemy.name} resisted!`);
+      return {...model, player: newPlayer, battleText: updatedText};
+    }
+    updatedText.push(` ${capitalize(enemy.name)} is now asleep!`);
+    const enemySleep = model.enemySleep || 2;
+    return {...model,
+      player: newPlayer,
+      battleText: updatedText, enemySleep: enemySleep};
+  }
+}
+
 /* The Enemy's Round */
 
+/**
+ * [startEnemyRound description]
+ * @param  {[type]} model [description]
+ * @return {[type]}       [description]
+ */
 export function startEnemyRound(model) {
+  const wakeChance = 3;
+  const {enemySleep} = model;
+  const updatedText = [...model.battleText];
+  if (enemySleep > 0) {
+    if (enemySleep === 2) { // Free round
+      updatedText.push(`The ${model.enemy.name} is asleep.`);
+      return {...model, battleText: updatedText, enemySleep: 1};
+    } else {
+      const wokeUp = (getRandomArbitrary(1, wakeChance) === wakeChance);
+      if (wokeUp) {
+        updatedText.push(`The ${model.enemy.name} woke up!`);
+        return enemyRound({...model, battleText: updatedText, enemySleep: 0});
+      } else {
+        updatedText.push(`The ${model.enemy.name} is still asleep...`);
+        return {...model, battleText: updatedText};
+      }
+    }
+  }
   return enemyRound(model);
 }
 
@@ -261,7 +323,7 @@ function enemyRound(model, aiPattern) {
         const roundDone = (chosenAttack === 'HEAL') ? enemyHeal(model, false) : enemyHeal(model, true);
         return roundDone;
       } else {
-        console.log("Trying to make new AI pattern");
+        console.log('Trying to make new AI pattern');
         const newAIPattern = aiPattern.filter((item) => item.id !== 'HEAL' || item.id !== 'HEALMORE');
         return enemyRound(model, newAIPattern);
       }
@@ -316,29 +378,41 @@ function enemyBattleMessages(model, damage) {
   };
 }
 
+/**
+ * [enemyHurt description]
+ * @param  {[type]}  model      [description]
+ * @param  {Boolean} isHurtmore [description]
+ * @return {[type]}             [description]
+ */
 function enemyHurt(model, isHurtmore) {
-  const eHurtRange = [3,10];
+  const eHurtRange = [3, 10];
   const eHurtmoreRange = [30, 45];
+  const eHurtRangeLow = [2, 6];
+  const eHurtmoreRangeLow = [20, 30];
   const spellName = (isHurtmore) ? 'Hurtmore' : 'Hurt';
   const {enemy, player} = model;
-  const {hp} = player;
-    const hurtDamage = (isHurtmore) ?
+  const {hp, armor} = player;
+  const magicDefense = armor.magDef;
+  const hurtDamage = (isHurtmore) ?
+    (magicDefense) ?
+      getRandomArbitrary(...eHurtmoreRangeLow) :
       getRandomArbitrary(...eHurtmoreRange) :
-      getRandomArbitrary(...eHurtRange);
-    const newHP = hp - hurtDamage;
-    const updatedText = [...model.battleText];
-    updatedText.push(`${capitalize(enemy.name)} casts ${spellName}!`);
-    updatedText.push(` Player is hurt by ${hurtDamage} hit points.`);
-    const battleState = (newHP <= 0) ? false : true;
-    // Handle wins
-    const newPlayer = {...player, hp: newHP};
-    if (newHP <= 0) {
-      updatedText.push(`You have been defeated by the ${capitalize(enemy.name)}.`);
-    }
-    return {...model,
-      player: newPlayer,
-      battleText: updatedText, inBattle: battleState};
+    (magicDefense) ?
+    getRandomArbitrary(...eHurtRangeLow) :
+    getRandomArbitrary(...eHurtRange);
+  const newHP = hp - hurtDamage;
+  const updatedText = [...model.battleText];
+  updatedText.push(`${capitalize(enemy.name)} casts ${spellName}!`);
+  updatedText.push(` Player is hurt by ${hurtDamage} hit points.`);
+  const battleState = (newHP <= 0) ? false : true;
+  const newPlayer = {...player, hp: newHP};
+  if (newHP <= 0) {
+    updatedText.push(`You have been defeated by the ${capitalize(enemy.name)}.`);
   }
+  return {...model,
+    player: newPlayer,
+    battleText: updatedText, inBattle: battleState};
+}
 
 function enemyHeal(model, isHealmore) {
   const eHealRange = [20, 27];
@@ -346,14 +420,14 @@ function enemyHeal(model, isHealmore) {
   const {enemy} = model;
   const {hp, maxhp} = enemy;
   const spellName = (isHealmore) ? 'Healmore' : 'Heal';
-    const healMax = maxhp - hp;
-    const healAmt = (isHealmore) ?
+  const healMax = maxhp - hp;
+  const healAmt = (isHealmore) ?
     getRandomArbitrary(...eHealmoreRange) :
     getRandomArbitrary(...eHealRange);
-    const finalHeal = (healMax < healAmt) ? healMax : healAmt;
-    const newEnemyHP = hp + finalHeal;
-    const updatedText = [...model.battleText];
-    updatedText.push(`${capitalize(enemy.name)} casts ${spellName}! ${capitalize(enemy.name)} is healed ${finalHeal} hit points`);
-    const updatedEnemy = {...model.enemy, hp: newEnemyHP};
-    return {...model, enemy: updatedEnemy, battleText: updatedText};
-  }
+  const finalHeal = (healMax < healAmt) ? healMax : healAmt;
+  const newEnemyHP = hp + finalHeal;
+  const updatedText = [...model.battleText];
+  updatedText.push(`${capitalize(enemy.name)} casts ${spellName}! ${capitalize(enemy.name)} is healed ${finalHeal} hit points`);
+  const updatedEnemy = {...model.enemy, hp: newEnemyHP};
+  return {...model, enemy: updatedEnemy, battleText: updatedText};
+}

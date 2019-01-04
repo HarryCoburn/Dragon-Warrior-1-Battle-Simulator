@@ -12,7 +12,8 @@ import {startBattleMsg,
   healMsg,
   healmoreMsg,
   hurtMsg,
-  hurtmoreMsg} from './Update';
+  hurtmoreMsg,
+  sleepMsg} from './Update';
 
 const {
   div,
@@ -59,6 +60,9 @@ function buttonBlock(dispatch, player, model) {
   }
   if (player.level >= 4) {
     buttons.push(button({className: '', onclick: (e) => dispatch(hurtMsg)}, 'Hurt'));
+  }
+  if (player.level >= 7) {
+    buttons.push(button({className: '', onclick: (e) => dispatch(sleepMsg)}, 'Sleep'));
   }
   if (player.level >= 17) {
     buttons.push(button({className: '', onclick: (e) => dispatch(healmoreMsg(player.hp, player.maxhp))}, 'Healmore'));

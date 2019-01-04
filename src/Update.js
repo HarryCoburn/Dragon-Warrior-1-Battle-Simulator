@@ -9,7 +9,7 @@ const MSGS = {
   CAST_HEALMORE: 'CAST_HEALMORE',
   CAST_HURT: 'CAST_HURT',
   CAST_HURTMORE: 'CAST_HURTMORE',
-  CAST_SPELL: 'CAST_SPELL',
+  CAST_SLEEP: 'CAST_SLEEP',
   CHANGE_ARMOR: 'CHANGE_ARMOR',
   CHANGE_ENEMY: 'CHANGE_ENEMY',
   CHANGE_LEVEL: 'CHANGE_LEVEL',
@@ -118,6 +118,7 @@ const statsMsg = {type: MSGS.CHANGE_STATS};
 const fightCleanupMsg = {type: MSGS.FIGHT_CLEANUP};
 const enemyTurnMsg = {type: MSGS.ENEMY_TURN};
 export const hurtMsg = {type: MSGS.CAST_HURT};
+export const sleepMsg = {type: MSGS.CAST_SLEEP};
 export const hurtmoreMsg = {type: MSGS.CAST_HURTMORE};
 
 /**
@@ -153,10 +154,9 @@ function update(msg, model) {
       }
 
       case MSGS.CAST_HEAL:
-      case MSGS.CAST_HEALMORE: {
+      case MSGS.CAST_HEALMORE:
+      case MSGS.CAST_SLEEP: {
         model = playerSpell(msg, model);
-        console.log("Model after casting");
-        console.log(model);
         messageQueue.push(enemyTurnMsg);
         break;
       }
@@ -174,15 +174,8 @@ function update(msg, model) {
 
       case MSGS.ENEMY_TURN: {
         const enemyRound = startEnemyRound(model);
-        const {player,
-          enemy,
-          battleText,
-          inBattle} = enemyRound;
-        model = {...model, battleText: battleText,
-          enemy: enemy,
-          player: player,
-          inBattle: inBattle};
-        if (!inBattle) {
+        model = enemyRound;
+        if (!model.inBattle) {
           messageQueue.push(fightCleanupMsg);
         }
         break;
@@ -194,6 +187,7 @@ function update(msg, model) {
         messageQueue.push(enemyMsg(enemyName));
         model = {...model,
           cleanBattleText: true,
+          enemySleep: 0,
         };
         break;
       }

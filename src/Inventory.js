@@ -40,8 +40,8 @@ const ARMORS = {
   'Chain Mail': {name: 'Chain Mail', mod: 10},
   'Half Plate': {name: 'Half Plate', mod: 16},
   'Full Plate': {name: 'Full Plate', mod: 24},
-  'Magic Armor': {name: 'Magic Armor', mod: 24},
-  'Erdrick\'s Armor': {name: 'Erdrick\'s Armor', mod: 28},
+  'Magic Armor': {name: 'Magic Armor', mod: 24, magDef: true},
+  'Erdrick\'s Armor': {name: 'Erdrick\'s Armor', mod: 28, magDef: true},
 };
 
 const SHIELDS = {
