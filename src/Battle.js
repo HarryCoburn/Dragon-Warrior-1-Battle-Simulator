@@ -66,7 +66,8 @@ export function startBattle(model) {
  */
 function fightSetup(model) {
   // Set the HP based on current battle status
-  const enemyWithHP = (!model.inBattle) ? {...model.enemy, hp: calculateEnemyHP(model.enemy.hp)} : model.enemy;
+  const enemyHP = calculateEnemyHP(model.enemy.hp);
+  const enemyWithHP = (!model.inBattle) ? {...model.enemy, hp: enemyHP, maxhp: enemyHP} : model.enemy;
   const playerWithHP = (!model.inBattle) ? {...model.player, hp: model.player.maxhp} : model.player;
   // Set that we're fighting
   return {...model, player: playerWithHP, enemy: enemyWithHP, inBattle: true};
@@ -231,9 +232,12 @@ export function startEnemyRound(model) {
   return enemyRound(model);
 }
 
-function enemyRound(model) {
+function enemyRound(model, aiPattern) {
   const {enemy} = model;
-  const chosenAttack = enemy.pattern.find(getAttack(sumOfWeights(enemy.pattern))).id;
+  if (aiPattern === undefined) {
+    aiPattern = enemy.pattern;
+  }
+  const chosenAttack = aiPattern.find(getAttack(sumOfWeights(aiPattern))).id;
   switch (chosenAttack) {
     case 'ATTACK': {
       const roundDone = enemyAttack(model);
@@ -248,6 +252,19 @@ function enemyRound(model) {
     case 'HURTMORE': {
       const roundDone = enemyHurt(model, true);
       return roundDone;
+      break;
+    }
+    case 'HEAL':
+    case 'HEALMORE': {
+      const willHeal = (enemy.hp / enemy.maxhp < 0.25) ? true : false;
+      if (willHeal) {
+        const roundDone = (chosenAttack === 'HEAL') ? enemyHeal(model, false) : enemyHeal(model, true);
+        return roundDone;
+      } else {
+        console.log("Trying to make new AI pattern");
+        const newAIPattern = aiPattern.filter((item) => item.id !== 'HEAL' || item.id !== 'HEALMORE');
+        return enemyRound(model, newAIPattern);
+      }
       break;
     }
   }
@@ -314,11 +331,29 @@ function enemyHurt(model, isHurtmore) {
     updatedText.push(` Player is hurt by ${hurtDamage} hit points.`);
     const battleState = (newHP <= 0) ? false : true;
     // Handle wins
-    const newEnemy = {...player, hp: newHP};
+    const newPlayer = {...player, hp: newHP};
     if (newHP <= 0) {
       updatedText.push(`You have been defeated by the ${capitalize(enemy.name)}.`);
     }
     return {...model,
       player: newPlayer,
       battleText: updatedText, inBattle: battleState};
+  }
+
+function enemyHeal(model, isHealmore) {
+  const eHealRange = [20, 27];
+  const eHealmoreRange = [85, 100];
+  const {enemy} = model;
+  const {hp, maxhp} = enemy;
+  const spellName = (isHealmore) ? 'Healmore' : 'Heal';
+    const healMax = maxhp - hp;
+    const healAmt = (isHealmore) ?
+    getRandomArbitrary(...eHealmoreRange) :
+    getRandomArbitrary(...eHealRange);
+    const finalHeal = (healMax < healAmt) ? healMax : healAmt;
+    const newEnemyHP = hp + finalHeal;
+    const updatedText = [...model.battleText];
+    updatedText.push(`${capitalize(enemy.name)} casts ${spellName}! ${capitalize(enemy.name)} is healed ${finalHeal} hit points`);
+    const updatedEnemy = {...model.enemy, hp: newEnemyHP};
+    return {...model, enemy: updatedEnemy, battleText: updatedText};
   }
