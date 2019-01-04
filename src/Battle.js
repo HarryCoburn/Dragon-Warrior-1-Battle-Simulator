@@ -97,6 +97,40 @@ function cleanBattleText(model) {
 /* The Player's Round */
 
 /**
+ * [startPlayerRound description]
+ * @param  {[type]} model [description]
+ * @param  {[type]} msg   [description]
+ * @return {[type]}       [description]
+ */
+export function startPlayerRound(model, msg) {
+  const {playerSleep} = model;
+  const updatedText = [...model.battleText];
+  if (playerSleep) {
+    if (coinFlip()) {
+      updatedText.push('You are still asleep!');
+      return {...model, battleText: updatedText};
+    } else {
+      updatedText.push('You wake up!');
+    }
+  }
+  const playerAwake = {...model, playerSleep: false};
+  switch (msg.type) {
+    case 'CAST_HEAL':
+    case 'CAST_HEALMORE':
+    case 'CAST_HURT':
+    case 'CAST_HURTMORE':
+    case 'CAST_SLEEP':
+    case 'CAST_STOPSPELL': {
+      return playerSpell(msg, playerAwake);
+      break;
+    }
+    case 'FIGHT': {
+      return playerFight(playerAwake);
+    }
+  }
+}
+
+/**
  * [playerFight description]
  * @param  {[type]} model [description]
  * @return {[type]}       [description]
@@ -385,7 +419,7 @@ export function startEnemyRound(model) {
  * @return {[type]}           [description]
  */
 function enemyRound(model, aiPattern) {
-  const {enemy} = model;
+  const {enemy, playerSleep} = model;
   if (aiPattern === undefined) {
     aiPattern = enemy.pattern;
   }
@@ -416,6 +450,15 @@ function enemyRound(model, aiPattern) {
         console.log('Trying to make new AI pattern');
         const newAIPattern = aiPattern.filter((item) => item.id !== 'HEAL' || item.id !== 'HEALMORE');
         return enemyRound(model, newAIPattern);
+      }
+      break;
+    }
+    case 'SLEEP': {
+      if (playerSleep) {
+        const newAIPattern = aiPattern.filter((item) => item.id !== 'SLEEP');
+        return enemyRound(model, newAIPattern);
+      } else {
+        return enemySleep(model);
       }
       break;
     }
@@ -553,4 +596,21 @@ function enemyHeal(model, isHealmore) {
   updatedText.push(`${capitalize(enemy.name)} is healed ${finalHeal} hit points`);
   const updatedEnemy = {...model.enemy, hp: newEnemyHP};
   return {...model, enemy: updatedEnemy, battleText: updatedText};
+}
+
+/**
+ * [enemySleep description]
+ * @param  {[type]} model [description]
+ * @return {[type]}       [description]
+ */
+function enemySleep(model) {
+  const {enemy} = model;
+  const updatedText = [...model.battleText];
+  updatedText.push(`The ${enemy.name} casts Sleep!`);
+  if (enemyStop) {
+    updatedText.push(`However, ${capitalize(enemy.name)}'s magic is blocked!`);
+    return {...model, battleText: updatedText};
+  }
+  updatedText.push(`You fall asleep!`);
+  return {...model, playerSleep: true};
 }

@@ -1,5 +1,5 @@
 // import * as R from 'ramda';
-import {startBattle, playerFight, startEnemyRound, playerSpell} from './Battle.js';
+import {startBattle, startPlayerRound, startEnemyRound} from './Battle.js';
 import {changeWeapon, changeArmor, changeShield} from './Inventory.js';
 import {changeStats, changeName} from './Stats.js';
 import {changeEnemy} from './Enemies.js';
@@ -26,7 +26,12 @@ const MSGS = {
 
 const capitalize = (x) => x.charAt(0).toUpperCase() + x.slice(1);
 
-
+/**
+ * [healmoreMsg description]
+ * @param  {[type]} hp    [description]
+ * @param  {[type]} maxhp [description]
+ * @return {[type]}       [description]
+ */
 export function healmoreMsg(hp, maxhp) {
   return {
     type: MSGS.CAST_HEALMORE,
@@ -37,6 +42,7 @@ export function healmoreMsg(hp, maxhp) {
 /**
  * [healMsg description]
  * @param  {[type]} hp [description]
+ * @param  {[type]} maxhp [description]
  * @return {[type]}    [description]
  */
 export function healMsg(hp, maxhp) {
@@ -46,18 +52,36 @@ export function healMsg(hp, maxhp) {
     maxhp,
   };
 }
+
+/**
+ * [shieldMsg description]
+ * @param  {[type]} shield [description]
+ * @return {[type]}        [description]
+ */
 export function shieldMsg(shield) {
   return {
     type: MSGS.CHANGE_SHIELD,
     shield,
   };
 }
+
+/**
+ * [armorMsg description]
+ * @param  {[type]} armor [description]
+ * @return {[type]}       [description]
+ */
 export function armorMsg(armor) {
   return {
     type: MSGS.CHANGE_ARMOR,
     armor,
   };
 }
+
+/**
+ * [weaponMsg description]
+ * @param  {[type]} weapon [description]
+ * @return {[type]}        [description]
+ */
 export function weaponMsg(weapon) {
   return {
     type: MSGS.CHANGE_WEAPON,
@@ -131,7 +155,7 @@ function update(msg, model) {
   while (messageQueue.length !== 0) {
     const msg = messageQueue.pop();
     console.log(msg);
-    console.log("Entering update with this model");
+    console.log('Entering update with this model');
     console.log(model);
     switch (msg.type) {
       case MSGS.START_BATTLE: {
@@ -140,28 +164,13 @@ function update(msg, model) {
       }
 
       case MSGS.CAST_HURT:
-      case MSGS.CAST_HURTMORE: {
-        model = playerSpell(msg, model);
-        const inBattle = model.inBattle;
-        if (!inBattle) {
-          messageQueue.push(fightCleanupMsg);
-        } else {
-          messageQueue.push(enemyTurnMsg);
-        }
-        break;
-      }
-
+      case MSGS.CAST_HURTMORE:
       case MSGS.CAST_HEAL:
       case MSGS.CAST_HEALMORE:
       case MSGS.CAST_SLEEP:
-      case MSGS.CAST_STOPSPELL: {
-        model = playerSpell(msg, model);
-        messageQueue.push(enemyTurnMsg);
-        break;
-      }
-
+      case MSGS.CAST_STOPSPELL:
       case MSGS.FIGHT: {
-        model = playerFight(model);
+        model = startPlayerRound(model, msg);
         const {inBattle} = model;
         if (!inBattle) {
           messageQueue.push(fightCleanupMsg);
@@ -188,6 +197,7 @@ function update(msg, model) {
           cleanBattleText: true,
           enemySleep: 0,
           enemyStop: false,
+          playerSleep: false,
         };
         break;
       }
@@ -221,7 +231,7 @@ function update(msg, model) {
         break;
       }
       case MSGS.CHANGE_STATS: {
-        console.log("Entering Change Stats")
+        console.log('Entering Change Stats');
         console.log(model);
         model = {...model, player: changeStats(model)};
         break;
@@ -232,7 +242,7 @@ function update(msg, model) {
         return model;
     }
   }
-  console.log("Exiting update with this model:");
+  console.log('Exiting update with this model:');
   console.log(model);
   return model;
 };

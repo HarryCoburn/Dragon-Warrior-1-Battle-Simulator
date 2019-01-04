@@ -5,6 +5,7 @@ const initModel = {
   inBattle: false,
   enemySleep: 0,
   enemyStop: false,
+  playerSleep: false,
   player: {
     name: 'Rollo',
     nameSum: 0,
