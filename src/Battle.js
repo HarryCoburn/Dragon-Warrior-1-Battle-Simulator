@@ -103,12 +103,13 @@ function cleanBattleText(model) {
  * @return {[type]}       [description]
  */
 export function startPlayerRound(model, msg) {
-  const {playerSleep} = model;
+  const {playerSleep, sleepCount} = model;
   const updatedText = [...model.battleText];
   if (playerSleep) {
-    if (coinFlip()) {
+    if (coinFlip() && sleepCount > 0) {
       updatedText.push('You are still asleep!');
-      return {...model, battleText: updatedText};
+      const newCount = sleepCount - 1;
+      return {...model, battleText: updatedText, sleepCount: newCount};
     } else {
       updatedText.push('You wake up!');
     }

@@ -198,6 +198,7 @@ function update(msg, model) {
           enemySleep: 0,
           enemyStop: false,
           playerSleep: false,
+          sleepCount: 6,
         };
         break;
       }
