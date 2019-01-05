@@ -51,9 +51,11 @@ export function startBattle(model) {
   // Clean the battle text
   const cleanModel = cleanBattleText(model);
   if (typeof cleanModel.enemy === 'object') {
-    const preparedBattleModel = fightSetup(model);
+    const preparedBattleModel = fightSetup(cleanModel);
     const updatedMsgs = [...preparedBattleModel.battleText, `You are fighting the ${preparedBattleModel.enemy.name}`];
-    return {...preparedBattleModel, battleText: updatedMsgs};
+    return {
+      model: {...preparedBattleModel, battleText: updatedMsgs},
+      initiative: checkInit(preparedBattleModel)};
   } else {
     const updatedMsgs = [...model.battleText, 'Please choose an enemy!'];
     return {...model, battleText: updatedMsgs, cleanBattleText: true};
@@ -81,6 +83,18 @@ function fightSetup(model) {
 }
 
 /**
+ * [checkInit description]
+ * @param  {[type]} model [description]
+ * @return {[type]}       [description]
+ */
+function checkInit(model) {
+  const {player, enemy} = model;
+  const playerInit = player.agility * getRandomArbitrary(0, 255);
+  const enemyInit = enemy.agility * getRandomArbitrary(0, 255) * 0.25;
+  return enemyInit > playerInit;
+}
+
+/**
  * [cleanBattleText description]
  * @param  {[type]} model [description]
  * @return {[type]}       [description]
@@ -88,6 +102,7 @@ function fightSetup(model) {
 function cleanBattleText(model) {
   const {cleanBattleText} = model;
   if (cleanBattleText) {
+    console.log('Should be cleaning battle text here...');
     return {...model, battleText: [], cleanBattleText: false};
   }
   return model;
@@ -128,7 +143,35 @@ export function startPlayerRound(model, msg) {
     case 'FIGHT': {
       return playerFight(playerAwake, dodged);
     }
+    case 'USE_HERB': {
+      return useHerb(playerAwake);
+    }
   }
+}
+
+/**
+ * [useHerb description]
+ * @param  {[type]} model [description]
+ * @return {[type]}       [description]
+ */
+function useHerb(model) {
+  const herbRange = [23, 30];
+  const updatedText = [...model.battleText];
+  const {player} = model;
+  const {hp, maxhp, herbCount} = player;
+  const healMax = maxhp - hp;
+  const healAmt = getRandomArbitrary(...herbRange);
+  const finalHeal = (healMax < healAmt) ? healMax : healAmt;
+  const newPlayerHP = hp + finalHeal;
+  if (finalHeal === 0) {
+    updatedText.push(`Player eats a healing herb. But their hit points were already at maximum!`);
+  } else {
+    updatedText.push(`Player eats a healing herb. Player is healed ${finalHeal} hit points`);
+  }
+  const newHerbCount = herbCount - 1;
+  const updatedPlayer =
+    {...model.player, hp: newPlayerHP, herbCount: newHerbCount};
+  return {...model, player: updatedPlayer, battleText: updatedText};
 }
 
 /**
@@ -139,7 +182,7 @@ export function startPlayerRound(model, msg) {
  */
 export function playerFight(model, dodged) {
   const {player, enemy} = model;
-  const critHit = isExcellent();
+  const critHit = isExcellent;
   const damageToEnemy = playerDamage(player, enemy, critHit, dodged);
   const enemyAfterRound = {...enemy, hp: enemy.hp - damageToEnemy};
   const afterPlayerRoundModel = {...model, enemy: enemyAfterRound};
@@ -427,25 +470,35 @@ function playerStop(model) {
  * @return {[type]}       [description]
  */
 export function startEnemyRound(model) {
+  const {player, enemy} = model;
   const wakeChance = 3;
   const {enemySleep} = model;
   const updatedText = [...model.battleText];
+  // Sleep Check
   if (enemySleep > 0) {
     if (enemySleep === 2) { // Free round
-      updatedText.push(`The ${model.enemy.name} is asleep.`);
+      updatedText.push(`The ${enemy.name} is asleep.`);
       return {...model, battleText: updatedText, enemySleep: 1};
     } else {
       const wokeUp = (getRandomArbitrary(1, wakeChance) === wakeChance);
       if (wokeUp) {
         updatedText.push(`The ${model.enemy.name} woke up!`);
-        return enemyRound({...model, battleText: updatedText, enemySleep: 0});
       } else {
         updatedText.push(`The ${model.enemy.name} is still asleep...`);
         return {...model, battleText: updatedText};
       }
     }
   }
-  return enemyRound(model);
+  // Run check
+  if (player.strength >= enemy.strength * 2) {
+    const enemyRun = getRandomArbitrary(1, 4) === 4;
+    if (enemyRun) {
+      updatedText.push(`The enemy flees from your superior strength!`);
+      return {...model,
+        battleText: updatedText, enemySleep: 0, inBattle: false};
+    }
+  }
+  return enemyRound({...model, battleText: updatedText, enemySleep: 0});
 }
 
 /**

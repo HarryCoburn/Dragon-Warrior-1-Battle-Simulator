@@ -14,7 +14,9 @@ import {startBattleMsg,
   hurtMsg,
   hurtmoreMsg,
   sleepMsg,
-  stopspellMsg} from './Update';
+  stopspellMsg,
+  herbMsg,
+  useHerbMsg} from './Update';
 
 const {
   div,
@@ -36,6 +38,7 @@ const ENEMIES = ['Choose an enemy', 'Slime', 'Red Slime', 'Drakee', 'Ghost', 'Ma
   'Demon Knight', 'Werewolf', 'Green Dragon', 'Starwyvern', 'Wizard', 'Axe Knight', 'Blue Dragon', 'Stoneman', 'Armored Knight',
   'Red Dragon', 'Dragonlord (first form)', 'Dragonlord (second form)'];
 const LEVELS = numRange(30, 1);
+const HERBCOUNT = numRange(7);
 const WEAPONS = ['Unarmed', 'Bamboo Pole', 'Club', 'Copper Sword', 'Hand Axe', 'Broad Sword', 'Flame Sword', 'Erdrick\'s Sword'];
 const ARMORS = ['Naked', 'Clothes', 'Leather Armor', 'Chain Mail', 'Half Plate', 'Full Plate', 'Magic Armor', 'Erdrick\'s Armor'];
 const SHIELDS = ['Naked', 'Small Shield', 'Large Shield', 'Silver Shield'];
@@ -73,6 +76,9 @@ function buttonBlock(dispatch, player, model) {
   }
   if (player.level >= 19) {
     buttons.push(button({className: '', onclick: (e) => dispatch(hurtmoreMsg)}, 'Hurtmore'));
+  }
+  if (player.herbCount > 0) {
+    buttons.push(button({className: '', onclick: (e) => dispatch(useHerbMsg)}, 'Use Herb'));
   }
   return buttons;
 }
@@ -147,6 +153,19 @@ function levelOptions(selectedLevel) {
 }
 
 /**
+ * [herbOptions description]
+ * @param  {[type]} selectedHerbCount [description]
+ * @return {[type]}                   [description]
+ */
+function herbOptions(selectedHerbCount) {
+  return R.map(
+      (herb) =>
+        option({value: herb, selected: selectedHerbCount === herb}, herb),
+      HERBCOUNT
+  );
+}
+
+/**
  * [playerBlock description]
  * @param  {[type]} dispatch [description]
  * @param  {[type]} player   [description]
@@ -185,6 +204,13 @@ function playerBlock(dispatch, player) {
       onchange: (e) => dispatch(shieldMsg(e.target.value)),
     },
     shieldOptions(player.shield),
+    ),
+    div({className: 'mv2'}, 'Herb Amount:'),
+    select({
+      className: 'db pa2 ba input-reset br1 bg-white ba b--black',
+      onchange: (e) => dispatch(herbMsg(parseInt(e.target.value))),
+    },
+    herbOptions(player.herbCount),
     ),
   ]);
 }

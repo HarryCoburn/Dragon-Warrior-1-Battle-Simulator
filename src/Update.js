@@ -13,6 +13,7 @@ const MSGS = {
   CAST_STOPSPELL: 'CAST_STOPSPELL',
   CHANGE_ARMOR: 'CHANGE_ARMOR',
   CHANGE_ENEMY: 'CHANGE_ENEMY',
+  CHANGE_HERB: 'CHANGE_HERB',
   CHANGE_LEVEL: 'CHANGE_LEVEL',
   CHANGE_NAME: 'CHANGE_NAME',
   CHANGE_SHIELD: 'CHANGE_SHIELD',
@@ -22,6 +23,7 @@ const MSGS = {
   FIGHT: 'FIGHT',
   FIGHT_CLEANUP: 'FIGHT_CLEANUP',
   START_BATTLE: 'START_BATTLE',
+  USE_HERB: 'USE_HERB',
 };
 
 const capitalize = (x) => x.charAt(0).toUpperCase() + x.slice(1);
@@ -62,6 +64,18 @@ export function shieldMsg(shield) {
   return {
     type: MSGS.CHANGE_SHIELD,
     shield,
+  };
+}
+
+/**
+ * [changeHerb description]
+ * @param  {[type]} herb [description]
+ * @return {[type]}      [description]
+ */
+export function herbMsg(herb) {
+  return {
+    type: MSGS.CHANGE_HERB,
+    herb,
   };
 }
 
@@ -142,6 +156,7 @@ export const hurtMsg = {type: MSGS.CAST_HURT};
 export const sleepMsg = {type: MSGS.CAST_SLEEP};
 export const hurtmoreMsg = {type: MSGS.CAST_HURTMORE};
 export const stopspellMsg = {type: MSGS.CAST_STOPSPELL};
+export const useHerbMsg = {type: MSGS.USE_HERB};
 
 /**
  * [update Handles the update messages. Source of impurity]
@@ -159,7 +174,15 @@ function update(msg, model) {
     console.log(model);
     switch (msg.type) {
       case MSGS.START_BATTLE: {
-        model = startBattle(model);
+        const battleStart = startBattle(model);
+        model = battleStart.model;
+        const updatedText = [...model.battleText];
+        const enemyInit = battleStart.initiative;
+        if (enemyInit) {
+          updatedText.push(`The enemy gets to go first!`);
+          model = {...model, battleText: updatedText};
+          messageQueue.push(enemyTurnMsg);
+        }
         break;
       }
 
@@ -169,7 +192,8 @@ function update(msg, model) {
       case MSGS.CAST_HEALMORE:
       case MSGS.CAST_SLEEP:
       case MSGS.CAST_STOPSPELL:
-      case MSGS.FIGHT: {
+      case MSGS.FIGHT:
+      case MSGS.USE_HERB: {
         model = startPlayerRound(model, msg);
         const {inBattle} = model;
         if (!inBattle) {
@@ -229,6 +253,12 @@ function update(msg, model) {
         const updatedPlayer = {...model.player, level: level};
         model = {...model, player: updatedPlayer};
         messageQueue.push(statsMsg);
+        break;
+      }
+      case MSGS.CHANGE_HERB: {
+        const {herb} = msg;
+        const updatedPlayer = {...model.player, herbCount: herb};
+        model = {...model, player: updatedPlayer};
         break;
       }
       case MSGS.CHANGE_STATS: {

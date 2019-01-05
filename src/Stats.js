@@ -32,6 +32,11 @@ const LEVELS = {
 };
 const getSum = (total, num) => total + num;
 
+/**
+ * [changeStats description]
+ * @param  {[type]} model [description]
+ * @return {[type]}       [description]
+ */
 export function changeStats(model) {
   const {player} = model;
   const {nameSum, progression, level} = player;
@@ -100,7 +105,8 @@ function statsCalc(nameSum, progression, baseLevelStats) {
 /**
  * [changeName computes the necessary variables for
  *  stat computation based on name]
- * @param  {[string]} name [Player's name]
+ * @param  {[message]} msg [Player's name]
+ * @param  {[model]} model [Player's name]
  * @return {[object]}      [Name sum and progression type]
  */
 export function changeName(msg, model) {

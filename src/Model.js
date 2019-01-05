@@ -21,6 +21,7 @@ const initModel = {
     weapon: {name: 'Unarmed', mod: 0},
     armor: {name: 'Naked', mod: 0},
     shield: {name: 'Naked', mod: 0},
+    herbCount: 0,
   },
 };
 
