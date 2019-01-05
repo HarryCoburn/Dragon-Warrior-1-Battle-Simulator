@@ -1,5 +1,7 @@
 // import * as R from 'ramda';
-import {startBattle, startPlayerRound, startEnemyRound} from './Battle.js';
+import {startBattle} from './Battle.js';
+import {startPlayerRound} from './PlayerAttack.js';
+import {startEnemyRound} from './EnemyAttack.js';
 import {changeWeapon, changeArmor, changeShield} from './Inventory.js';
 import {changeStats, changeName} from './Stats.js';
 import {changeEnemy} from './Enemies.js';
