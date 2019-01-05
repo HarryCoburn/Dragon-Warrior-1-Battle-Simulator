@@ -16,7 +16,8 @@ import {startBattleMsg,
   sleepMsg,
   stopspellMsg,
   herbMsg,
-  useHerbMsg} from './Update';
+  useHerbMsg,
+  runMsg} from './Update';
 
 const {
   div,
@@ -80,6 +81,7 @@ function buttonBlock(dispatch, player, model) {
   if (player.herbCount > 0) {
     buttons.push(button({className: '', onclick: (e) => dispatch(useHerbMsg)}, 'Use Herb'));
   }
+  buttons.push(button({className: '', onclick: (e) => dispatch(runMsg)}, 'Run Away'));
   return buttons;
 }
 

@@ -21,6 +21,7 @@ const ENEMIES = {
     hurtR: 0,
     dodge: 1,
     pattern: [{id: ATTACKS.ATTACK, weight: 100}],
+    run: 0,
   },
   'Red Slime': {
     name: 'Red Slime',
@@ -32,6 +33,7 @@ const ENEMIES = {
     hurtR: 0,
     dodge: 1,
     pattern: [{id: ATTACKS.ATTACK, weight: 100}],
+    run: 0,
   },
   'Drakee': {
     name: 'Drakee',
@@ -43,6 +45,7 @@ const ENEMIES = {
     hurtR: 0,
     dodge: 1,
     pattern: [{id: ATTACKS.ATTACK, weight: 100}],
+    run: 0,
   },
   'Ghost': {
     name: 'Ghost',
@@ -54,6 +57,7 @@ const ENEMIES = {
     hurtR: 0,
     dodge: 4,
     pattern: [{id: ATTACKS.ATTACK, weight: 100}],
+    run: 0,
   },
   'Magician': {
     name: 'Magician',
@@ -66,6 +70,7 @@ const ENEMIES = {
     dodge: 1,
     pattern: [{id: ATTACKS.ATTACK, weight: 50},
       {id: ATTACKS.HURT, weight: 50}],
+    run: 0,
   },
   'Magidrakee': {
     name: 'Magidrakee',
@@ -78,6 +83,7 @@ const ENEMIES = {
     dodge: 1,
     pattern: [{id: ATTACKS.ATTACK, weight: 50},
       {id: ATTACKS.HURT, weight: 50}],
+    run: 0,
   },
   'Scorpion': { // Incomplete
     name: 'Scorpion',
@@ -89,6 +95,7 @@ const ENEMIES = {
     hurtR: 0,
     dodge: 1,
     pattern: [{id: ATTACKS.ATTACK, weight: 100}],
+    run: 0,
   },
   'Druin': {
     name: 'Druin',
@@ -100,6 +107,7 @@ const ENEMIES = {
     hurtR: 0,
     dodge: 2,
     pattern: [{id: ATTACKS.ATTACK, weight: 100}],
+    run: 0,
   },
   'Poltergeist': {
     name: 'Poltergeist',
@@ -112,6 +120,7 @@ const ENEMIES = {
     dodge: 6,
     pattern: [{id: ATTACKS.ATTACK, weight: 25},
       {id: ATTACKS.HURT, weight: 75}],
+    run: 0,
   },
   'Droll': {
     name: 'Droll',
@@ -123,6 +132,7 @@ const ENEMIES = {
     hurtR: 0,
     dodge: 2,
     pattern: [{id: ATTACKS.ATTACK, weight: 100}],
+    run: 0,
   },
   'Drakeema': {
     name: 'Drakeema',
@@ -136,6 +146,7 @@ const ENEMIES = {
     pattern: [{id: ATTACKS.HEAL, weight: 25},
       {id: ATTACKS.HURT, weight: 50},
       {id: ATTACKS.ATTACK, weight: 25}],
+    run: 0,
   },
   'Skeleton': {
     name: 'Skeleton',
@@ -147,6 +158,7 @@ const ENEMIES = {
     hurtR: 0,
     dodge: 4,
     pattern: [{id: ATTACKS.ATTACK, weight: 100}],
+    run: 0,
   },
   'Warlock': {
     name: 'Warlock',
@@ -160,6 +172,7 @@ const ENEMIES = {
     pattern: [{id: ATTACKS.SLEEP, weight: 25},
       {id: ATTACKS.HURT, weight: 50},
       {id: ATTACKS.ATTACK, weight: 50}],
+    run: 0,
   },
   'Metal Scorpion': {
     name: 'Metal Scorpion',
@@ -171,6 +184,7 @@ const ENEMIES = {
     hurtR: 0,
     dodge: 2,
     pattern: [{id: ATTACKS.ATTACK, weight: 100}],
+    run: 0,
   },
   'Wolf': {
     name: 'Wolf',
@@ -182,6 +196,7 @@ const ENEMIES = {
     hurtR: 0,
     dodge: 2,
     pattern: [{id: ATTACKS.ATTACK, weight: 100}],
+    run: 0,
   },
   'Wraith': {
     name: 'Wraith',
@@ -194,6 +209,7 @@ const ENEMIES = {
     dodge: 4,
     pattern: [{id: ATTACKS.HEAL, weight: 25},
       {id: ATTACKS.ATTACK, weight: 75}],
+    run: 0,
   },
   'Metal Slime': {
     name: 'Metal Slime',
@@ -206,6 +222,7 @@ const ENEMIES = {
     dodge: 1,
     pattern: [{id: ATTACKS.HURT, weight: 75},
       {id: ATTACKS.ATTACK, weight: 25}],
+    run: 0,
   },
   'Specter': {
     name: 'Specter',
@@ -219,6 +236,7 @@ const ENEMIES = {
     pattern: [{id: ATTACKS.SLEEP, weight: 25},
       {id: ATTACKS.HURT, weight: 75},
       {id: ATTACKS.ATTACK, weight: 25}],
+    run: 0,
   },
   'Wolflord': {
     name: 'Wolflord',
@@ -231,6 +249,7 @@ const ENEMIES = {
     dodge: 2,
     pattern: [{id: ATTACKS.STOPSPELL, weight: 50},
       {id: ATTACKS.ATTACK, weight: 50}],
+    run: 0,
   },
   'Druinlord': {
     name: 'Druinlord',
@@ -244,6 +263,7 @@ const ENEMIES = {
     pattern: [{id: ATTACKS.HEAL, weight: 75},
       {id: ATTACKS.ATTACK, weight: 75},
       {id: ATTACKS.HURT, weight: 25}],
+    run: 0,
   },
   'Drollmagi': {
     name: 'Drollmagi',
@@ -256,6 +276,7 @@ const ENEMIES = {
     dodge: 1,
     pattern: [{id: ATTACKS.STOPSPELL, weight: 50},
       {id: ATTACKS.ATTACK, weight: 50}],
+    run: 1,
   },
   'Wyvern': {
     name: 'Wyvern',
@@ -267,6 +288,7 @@ const ENEMIES = {
     hurtR: 0,
     dodge: 2,
     pattern: [{id: ATTACKS.ATTACK, weight: 100}],
+    run: 1,
   },
   'Rogue Scorpion': {
     name: 'Rogue Scorpion',
@@ -278,6 +300,7 @@ const ENEMIES = {
     hurtR: 0,
     dodge: 2,
     pattern: [{id: ATTACKS.ATTACK, weight: 100}],
+    run: 1,
   },
   'Wraith Knight': {
     name: 'Wraith Knight',
@@ -290,6 +313,7 @@ const ENEMIES = {
     dodge: 4,
     pattern: [{id: ATTACKS.HEAL, weight: 75},
       {id: ATTACKS.ATTACK, weight: 25}],
+    run: 1,
   },
   'Golem': {
     name: 'Golem',
@@ -301,6 +325,7 @@ const ENEMIES = {
     hurtR: 15,
     dodge: 0,
     pattern: [{id: ATTACKS.ATTACK, weight: 100}],
+    run: 1,
   },
   'Goldman': {
     name: 'Goldman',
@@ -312,6 +337,7 @@ const ENEMIES = {
     hurtR: 0,
     dodge: 1,
     pattern: [{id: ATTACKS.ATTACK, weight: 100}],
+    run: 1,
   },
   'Knight': {
     name: 'Knight',
@@ -324,6 +350,7 @@ const ENEMIES = {
     dodge: 1,
     pattern: [{id: ATTACKS.STOPSPELL, weight: 50},
       {id: ATTACKS.ATTACK, weight: 50}],
+    run: 1,
   },
   'Magiwyvern': {
     name: 'Magiwyvern',
@@ -336,6 +363,7 @@ const ENEMIES = {
     dodge: 0,
     pattern: [{id: ATTACKS.SLEEP, weight: 50},
       {id: ATTACKS.ATTACK, weight: 50}],
+    run: 1,
   },
   'Demon Knight': {
     name: 'Demon Knight',
@@ -347,6 +375,7 @@ const ENEMIES = {
     hurtR: 15,
     dodge: 15,
     pattern: [{id: ATTACKS.ATTACK, weight: 100}],
+    run: 1,
   },
   'Werewolf': {
     name: 'Werewolf',
@@ -358,6 +387,7 @@ const ENEMIES = {
     hurtR: 0,
     dodge: 7,
     pattern: [{id: ATTACKS.ATTACK, weight: 100}],
+    run: 1,
   },
   'Green Dragon': {
     name: 'Green Dragon',
@@ -370,6 +400,7 @@ const ENEMIES = {
     dodge: 2,
     pattern: [{id: ATTACKS.FIRE, weight: 25},
       {id: ATTACKS.ATTACK, weight: 75}],
+    run: 2,
   },
   'Starwyvern': {
     name: 'Starwyvern',
@@ -383,6 +414,7 @@ const ENEMIES = {
     pattern: [{id: ATTACKS.HEALMORE, weight: 75},
       {id: ATTACKS.FIRE, weight: 25},
       {id: ATTACKS.ATTACK, weight: 75}],
+    run: 2,
   },
   'Wizard': {
     name: 'Wizard',
@@ -395,6 +427,7 @@ const ENEMIES = {
     dodge: 2,
     pattern: [{id: ATTACKS.ATTACK, weight: 50},
       {id: ATTACKS.HURTMORE, weight: 50}],
+    run: 2,
   },
   'Axe Knight': {
     name: 'Axe Knight',
@@ -407,6 +440,7 @@ const ENEMIES = {
     dodge: 1,
     pattern: [{id: ATTACKS.SLEEP, weight: 25},
       {id: ATTACKS.ATTACK, weight: 75}],
+    run: 2,
   },
   'Blue Dragon': {
     name: 'Blue Dragon',
@@ -419,6 +453,7 @@ const ENEMIES = {
     dodge: 2,
     pattern: [{id: ATTACKS.FIRE, weight: 25},
       {id: ATTACKS.ATTACK, weight: 75}],
+    run: 2,
   },
   'Stoneman': {
     name: 'Stoneman',
@@ -430,6 +465,7 @@ const ENEMIES = {
     hurtR: 7,
     dodge: 1,
     pattern: [{id: ATTACKS.ATTACK, weight: 100}],
+    run: 3,
   },
   'Armored Knight': {
     name: 'Armored Knight',
@@ -444,6 +480,7 @@ const ENEMIES = {
       {id: ATTACKS.HURTMORE, weight: 25},
       {id: ATTACKS.ATTACK, weight: 75},
     ],
+    run: 3,
   },
   'Red Dragon': {
     name: 'Red Dragon',
@@ -457,6 +494,7 @@ const ENEMIES = {
     pattern: [{id: ATTACKS.SLEEP, weight: 25},
       {id: ATTACKS.FIRE, weight: 25},
       {id: ATTACKS.ATTACK, weight: 50}],
+    run: 3,
   },
   'Dragonlord (first form)': {
     name: 'Dragonlord (first form)',
@@ -471,6 +509,7 @@ const ENEMIES = {
       {id: ATTACKS.HURTMORE, weight: 75},
       {id: ATTACKS.ATTACK, weight: 25}],
     voidCrit: true,
+    run: 3,
   },
   'Dragonlord (second form)': {
     name: 'Dragonlord (second form)',
@@ -484,6 +523,7 @@ const ENEMIES = {
     pattern: [{id: ATTACKS.STRONGFIRE, weight: 50},
       {id: ATTACKS.ATTACK, weight: 50}],
     voidCrit: true,
+    run: 3,
   },
 };
 

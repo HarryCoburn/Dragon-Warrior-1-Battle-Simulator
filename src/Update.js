@@ -22,6 +22,7 @@ const MSGS = {
   ENEMY_TURN: 'ENEMY_TURN',
   FIGHT: 'FIGHT',
   FIGHT_CLEANUP: 'FIGHT_CLEANUP',
+  RUN_AWAY: 'RUN_AWAY',
   START_BATTLE: 'START_BATTLE',
   USE_HERB: 'USE_HERB',
 };
@@ -157,6 +158,7 @@ export const sleepMsg = {type: MSGS.CAST_SLEEP};
 export const hurtmoreMsg = {type: MSGS.CAST_HURTMORE};
 export const stopspellMsg = {type: MSGS.CAST_STOPSPELL};
 export const useHerbMsg = {type: MSGS.USE_HERB};
+export const runMsg = {type: MSGS.RUN_AWAY};
 
 /**
  * [update Handles the update messages. Source of impurity]
@@ -193,7 +195,8 @@ function update(msg, model) {
       case MSGS.CAST_SLEEP:
       case MSGS.CAST_STOPSPELL:
       case MSGS.FIGHT:
-      case MSGS.USE_HERB: {
+      case MSGS.USE_HERB:
+      case MSGS.RUN_AWAY: {
         model = startPlayerRound(model, msg);
         const {inBattle} = model;
         if (!inBattle) {

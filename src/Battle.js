@@ -20,6 +20,7 @@ const playerHurtmoreRange = [58, 65];
 const resistLimit = 16;
 const resistCheck = (resistValue) =>
   (getRandomArbitrary(1, resistLimit) <= resistValue) ? true : false;
+const runModifiers = [0.25, 0.375, 0.75, 1];
 
 // Testing battle AI
 const sumOfWeights = (enemyAI) => enemyAI.reduce(function(memo, entry) {
@@ -146,6 +147,9 @@ export function startPlayerRound(model, msg) {
     case 'USE_HERB': {
       return useHerb(playerAwake);
     }
+    case 'RUN_AWAY': {
+      return runAway(playerAwake);
+    }
   }
 }
 
@@ -172,6 +176,30 @@ function useHerb(model) {
   const updatedPlayer =
     {...model.player, hp: newPlayerHP, herbCount: newHerbCount};
   return {...model, player: updatedPlayer, battleText: updatedText};
+}
+
+/**
+ * [runAway description]
+ * @param  {[type]} model [description]
+ * @return {[type]}       [description]
+ */
+function runAway(model) {
+  const {player, enemy} = model;
+  const pAgility = player.agility;
+  const eAgility = enemy.agility;
+  const pMod = getRandomArbitrary(0, 255);
+  const eMod = getRandomArbitrary(0, 255);
+  const eRunMod = runModifiers[enemy.run];
+  const updatedText = [...model.battleText];
+  updatedText.push(`You try to run away...`);
+  const successfulRun = pAgility * pMod > eAgility * eMod * eRunMod;
+  if (successfulRun || model.enemySleep === true) {
+    updatedText.push(`You succeed in fleeing!`);
+    return {...model, inBattle: false, battleText: updatedText};
+  } else {
+    updatedText.push(`...but the enemy blocks you from running away!`);
+    return {...model, battleText: updatedText};
+  }
 }
 
 /**
@@ -764,7 +792,7 @@ function enemyFire(model, isStrongfire) {
       (fireDefense) ?
         getRandomArbitrary(...eStrongfireRangeLow) :
         getRandomArbitrary(...eStrongfireRange) :
-      (magicDefense) ?
+      (fireDefense) ?
       getRandomArbitrary(...eFireRangeLow) :
       getRandomArbitrary(...eFireRange);
   const newHP = hp - fireDamage;
