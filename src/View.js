@@ -14,7 +14,7 @@ import {startBattleMsg,
   hurtMsg,
   hurtmoreMsg,
   sleepMsg,
-stopspellMsg} from './Update';
+  stopspellMsg} from './Update';
 
 const {
   div,
@@ -161,7 +161,7 @@ function playerBlock(dispatch, player) {
     div({className: 'mv2'}, 'Player Level:'),
     select({
       className: 'db pa2 ba input-reset br1 bg-white ba b--black',
-      onchange: (e) => dispatch(levelMsg(parseInt(e.target.value))), // parsing needed to avoid view bug
+      onchange: (e) => dispatch(levelMsg(parseInt(e.target.value))),
     },
     levelOptions(player.level),
     ),

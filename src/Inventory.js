@@ -41,7 +41,7 @@ const ARMORS = {
   'Half Plate': {name: 'Half Plate', mod: 16},
   'Full Plate': {name: 'Full Plate', mod: 24},
   'Magic Armor': {name: 'Magic Armor', mod: 24, magDef: true},
-  'Erdrick\'s Armor': {name: 'Erdrick\'s Armor', mod: 28, magDef: true},
+  'Erdrick\'s Armor': {name: 'Erdrick\'s Armor', mod: 28, magDef: true, fireDef: true},
 };
 
 const SHIELDS = {
@@ -51,16 +51,34 @@ const SHIELDS = {
   'Silver Shield': {name: 'Silver Shield', mod: 25},
 };
 
+/**
+ * [changeWeapon description]
+ * @param  {[type]} msg   [description]
+ * @param  {[type]} model [description]
+ * @return {[type]}       [description]
+ */
 export function changeWeapon(msg, model) {
   const {weapon} = msg;
   return {...model.player, weapon: WEAPONS[weapon]};
 }
 
+/**
+ * [changeArmor description]
+ * @param  {[type]} msg   [description]
+ * @param  {[type]} model [description]
+ * @return {[type]}       [description]
+ */
 export function changeArmor(msg, model) {
   const {armor} = msg;
   return {...model.player, armor: ARMORS[armor]};
 }
 
+/**
+ * [changeShield description]
+ * @param  {[type]} msg   [description]
+ * @param  {[type]} model [description]
+ * @return {[type]}       [description]
+ */
 export function changeShield(msg, model) {
   const {shield} = msg;
   return {...model.player, shield: SHIELDS[shield]};

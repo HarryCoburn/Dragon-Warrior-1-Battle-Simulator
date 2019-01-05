@@ -470,6 +470,7 @@ const ENEMIES = {
     pattern: [{id: ATTACKS.STOPSPELL, weight: 25},
       {id: ATTACKS.HURTMORE, weight: 75},
       {id: ATTACKS.ATTACK, weight: 25}],
+    voidCrit: true,
   },
   'Dragonlord (second form)': {
     name: 'Dragonlord (second form)',
@@ -481,7 +482,9 @@ const ENEMIES = {
     hurtR: 15,
     dodge: 0,
     pattern: [{id: ATTACKS.STRONGFIRE, weight: 50},
-      {id: ATTACKS.ATTACK, weight: 50}]},
+      {id: ATTACKS.ATTACK, weight: 50}],
+    voidCrit: true,
+  },
 };
 
 /**

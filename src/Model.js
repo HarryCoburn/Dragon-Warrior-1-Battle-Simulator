@@ -6,6 +6,7 @@ const initModel = {
   enemySleep: 0,
   enemyStop: false,
   playerSleep: false,
+  playerStop: false,
   sleepCount: 6,
   player: {
     name: 'Rollo',
