@@ -8,6 +8,7 @@ const initModel = {
   playerSleep: false,
   playerStop: false,
   sleepCount: 6,
+  critHit: false,
   player: {
     name: 'Rollo',
     nameSum: 0,

@@ -1,9 +1,18 @@
 import {randomFromRange} from './Utils.js';
+import * as R from 'ramda';
 
 // Takes array from Enemy entry and generates a random HP value.
 const calculateEnemyHP = (enemyHP) =>
   (typeof enemyHP !== 'object') ? enemyHP :
   randomFromRange(...enemyHP);
+
+// Reset battleText
+const checkClean = R.when(needToClean, resetText);
+const needToClean = R.propEq('cleanBattleText', true);
+const resetText = R.pipe(clearText, clearTextCheck);
+const clearText = R.assoc('battleText', []);
+const clearTextCheck = R.assoc('cleanBattleText', false);
+
 
 /* Battle prep functions */
 
@@ -14,7 +23,8 @@ const calculateEnemyHP = (enemyHP) =>
  */
 export function startBattle(model) {
   // Clean the battle text
-  const cleanModel = cleanBattleText(model);
+  const cleanModel = checkClean(model);
+
   if (typeof cleanModel.enemy === 'object') {
     const preparedBattleModel = fightSetup(cleanModel);
     const updatedMsgs = [...preparedBattleModel.battleText, `You are fighting the ${preparedBattleModel.enemy.name}`];
@@ -57,17 +67,4 @@ function checkInit(model) {
   const playerInit = player.agility * randomFromRange(0, 255);
   const enemyInit = enemy.agility * randomFromRange(0, 255) * 0.25;
   return enemyInit > playerInit;
-}
-
-/**
- * [cleanBattleText description]
- * @param  {[type]} model [description]
- * @return {[type]}       [description]
- */
-function cleanBattleText(model) {
-  const {cleanBattleText} = model;
-  if (cleanBattleText) {
-    return {...model, battleText: [], cleanBattleText: false};
-  }
-  return model;
 }

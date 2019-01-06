@@ -1,7 +1,8 @@
 import {coinFlip, capitalize, randomFromRange} from './Utils.js';
+import * as R from 'ramda';
 
 // Test for excellent (critical) attack
-const isExcellent = randomFromRange(1, 32) === 1;
+const excellentCheck = randomFromRange(1, 32) === 1;
 
 // Test if an enemy dodged an attack
 const dodgeSuccess = (dodgeChance) => randomFromRange(1, 64) <= dodgeChance;
@@ -10,6 +11,10 @@ const dodgeSuccess = (dodgeChance) => randomFromRange(1, 64) <= dodgeChance;
 const resistLimit = 16;
 const resistCheck = (resistValue) =>
   (randomFromRange(1, resistLimit) <= resistValue) ? true : false;
+
+// Test if you still sleeping at the start of a round.
+const checkSleepCount = (model) => model.sleepCount > 0;
+const stillSleeping = (model) => R.both(coinFlip, checkSleepCount(model));
 
 // Define normal damage range
 const normalDamageRange = (x, y) => [minDamage(x, y), maxDamage(x, y)];
@@ -36,9 +41,9 @@ export function startPlayerRound(model, msg) {
   const dodged = dodgeSuccess(enemy.dodge);
   const updatedText = [...model.battleText];
   if (playerSleep) {
-    if (coinFlip() && sleepCount > 0) {
+    if (stillSleeping(model)) {
       updatedText.push('You are still asleep!');
-      const newCount = sleepCount - 1;
+      const newCount = R.dec(sleepCount);
       return {...model, battleText: updatedText, sleepCount: newCount};
     } else {
       updatedText.push('You wake up!');
@@ -86,7 +91,7 @@ function useHerb(model) {
   } else {
     updatedText.push(`Player eats a healing herb. Player is healed ${finalHeal} hit points`);
   }
-  const newHerbCount = herbCount - 1;
+  const newHerbCount = R.dec(herbCount);
   const updatedPlayer =
     {...model.player, hp: newPlayerHP, herbCount: newHerbCount};
   return {...model, player: updatedPlayer, battleText: updatedText};
@@ -124,7 +129,7 @@ function runAway(model) {
  */
 export function playerFight(model, dodged) {
   const {player, enemy} = model;
-  const critHit = isExcellent;
+  const critHit = excellentCheck;
   const damageToEnemy = playerDamage(player, enemy, critHit, dodged);
   const enemyAfterRound = {...enemy, hp: enemy.hp - damageToEnemy};
   const afterPlayerRoundModel = {...model, enemy: enemyAfterRound};
