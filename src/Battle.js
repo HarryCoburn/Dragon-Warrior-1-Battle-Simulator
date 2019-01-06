@@ -7,12 +7,11 @@ const calculateEnemyHP = (enemyHP) =>
   randomFromRange(...enemyHP);
 
 // Reset battleText
-const checkClean = R.when(needToClean, resetText);
+const checkClean = (x) => R.when(needToClean, resetText)(x);
 const needToClean = R.propEq('cleanBattleText', true);
-const resetText = R.pipe(clearText, clearTextCheck);
+const resetText = (x) => R.pipe(clearText, clearTextCheck)(x);
 const clearText = R.assoc('battleText', []);
 const clearTextCheck = R.assoc('cleanBattleText', false);
-
 
 /* Battle prep functions */
 
@@ -24,7 +23,6 @@ const clearTextCheck = R.assoc('cleanBattleText', false);
 export function startBattle(model) {
   // Clean the battle text
   const cleanModel = checkClean(model);
-
   if (typeof cleanModel.enemy === 'object') {
     const preparedBattleModel = fightSetup(cleanModel);
     const updatedMsgs = [...preparedBattleModel.battleText, `You are fighting the ${preparedBattleModel.enemy.name}`];
