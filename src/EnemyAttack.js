@@ -47,7 +47,7 @@ export function startEnemyRound(model) {
       updatedText.push(`The ${enemy.name} is asleep.`);
       return {...model, battleText: updatedText, enemySleep: 1};
     } else {
-      const wokeUp = (randomFromRange(1, wakeChance) === wakeChance);
+      const wokeUp = (randomFromRange([1, wakeChance]) === wakeChance);
       if (wokeUp) {
         updatedText.push(`The ${model.enemy.name} woke up!`);
       } else {
@@ -58,7 +58,7 @@ export function startEnemyRound(model) {
   }
   // Run check
   if (player.strength >= enemy.strength * 2) {
-    const enemyRun = randomFromRange(1, 4) === 4;
+    const enemyRun = randomFromRange([1, 4]) === 4;
     if (enemyRun) {
       updatedText.push(`The enemy flees from your superior strength!`);
       return {...model,
@@ -75,7 +75,7 @@ export function startEnemyRound(model) {
  * @return {[type]}           [description]
  */
 function enemyRound(model, aiPattern) {
-  const {enemy, playerSleep} = model;
+  const {enemy, playerSleep, playerStop} = model;
   if (aiPattern === undefined) {
     aiPattern = enemy.pattern;
   }
@@ -167,9 +167,9 @@ function enemyDamage(player, enemy) {
   const heroHighDefense = heroDefense >= enemyAttack;
   // Enemy attack range calculation
   if (heroHighDefense) {
-    return randomFromRange(...lowDamageRange(enemyAttack));
+    return randomFromRange(lowDamageRange(enemyAttack));
   } else {
-    return randomFromRange(...normalDamageRange(enemyAttack, heroDefense));
+    return randomFromRange(normalDamageRange(enemyAttack, heroDefense));
   }
 }
 
@@ -211,12 +211,8 @@ function enemyHurt(model, isHurtmore) {
   const {hp, armor} = player;
   const magicDefense = armor.magDef;
   const hurtDamage = (isHurtmore) ?
-    (magicDefense) ?
-      randomFromRange(...eHurtmoreRangeLow) :
-      randomFromRange(...eHurtmoreRange) :
-    (magicDefense) ?
-    randomFromRange(...eHurtRangeLow) :
-    randomFromRange(...eHurtRange);
+  (magicDefense) ?  randomFromRange(eHurtmoreRangeLow) :  randomFromRange(eHurtmoreRange) :
+  (magicDefense) ?  randomFromRange(eHurtRangeLow) : randomFromRange(eHurtRange);
   const newHP = hp - hurtDamage;
   const updatedText = [...model.battleText];
   updatedText.push(`${capitalize(enemy.name)} casts ${spellName}!`);
@@ -249,8 +245,8 @@ function enemyHeal(model, isHealmore) {
   const spellName = (isHealmore) ? 'Healmore' : 'Heal';
   const healMax = maxhp - hp;
   const healAmt = (isHealmore) ?
-    randomFromRange(...eHealmoreRange) :
-    randomFromRange(...eHealRange);
+    randomFromRange(eHealmoreRange) :
+    randomFromRange(eHealRange);
   const finalHeal = (healMax < healAmt) ? healMax : healAmt;
   const updatedText = [...model.battleText];
   updatedText.push(`${capitalize(enemy.name)} casts ${spellName}!`);
@@ -320,11 +316,11 @@ function enemyFire(model, isStrongfire) {
   const fireDefense = armor.fireDef;
   const fireDamage = (isStrongfire) ?
       (fireDefense) ?
-        randomFromRange(...eStrongfireRangeLow) :
-        randomFromRange(...eStrongfireRange) :
+        randomFromRange(eStrongfireRangeLow) :
+        randomFromRange(eStrongfireRange) :
       (fireDefense) ?
-      randomFromRange(...eFireRangeLow) :
-      randomFromRange(...eFireRange);
+      randomFromRange(eFireRangeLow) :
+      randomFromRange(eFireRange);
   const newHP = hp - fireDamage;
   const updatedText = [...model.battleText];
   updatedText.push(`${capitalize(enemy.name)} breathes ${spellName}!`);

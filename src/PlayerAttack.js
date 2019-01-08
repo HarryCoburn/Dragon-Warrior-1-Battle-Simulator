@@ -2,15 +2,15 @@ import {coinFlip, capitalize, randomFromRange} from './Utils.js';
 import * as R from 'ramda';
 
 // Test for excellent (critical) attack
-const excellentCheck = randomFromRange(1, 32) === 1;
+const excellentCheck = randomFromRange([1, 32]) === 1;
 
 // Test if an enemy dodged an attack
-const dodgeSuccess = (dodgeChance) => randomFromRange(1, 64) <= dodgeChance;
+const dodgeSuccess = (dodgeChance) => randomFromRange([1, 64]) <= dodgeChance;
 
 // Test to see if an enemy resisted a spell
 const resistLimit = 16;
 const resistCheck = (resistValue) =>
-  (randomFromRange(1, resistLimit) <= resistValue) ? true : false;
+  (randomFromRange([1, resistLimit]) <= resistValue) ? true : false;
 
 // Test if you still sleeping at the start of a round.
 const checkSleepCount = (model) => model.sleepCount > 0;
@@ -37,6 +37,8 @@ const runModifiers = [0.25, 0.375, 0.75, 1];
  * @return {[type]}       [description]
  */
 export function startPlayerRound(model, msg) {
+  console.log("Entering startPlayerRound");
+  console.log(model);
   const {playerSleep, sleepCount, enemy} = model;
   const dodged = dodgeSuccess(enemy.dodge);
   const updatedText = [...model.battleText];
@@ -83,7 +85,7 @@ function useHerb(model) {
   const {player} = model;
   const {hp, maxhp, herbCount} = player;
   const healMax = maxhp - hp;
-  const healAmt = randomFromRange(...herbRange);
+  const healAmt = randomFromRange(herbRange);
   const finalHeal = (healMax < healAmt) ? healMax : healAmt;
   const newPlayerHP = hp + finalHeal;
   if (finalHeal === 0) {
@@ -106,8 +108,8 @@ function runAway(model) {
   const {player, enemy} = model;
   const pAgility = player.agility;
   const eAgility = enemy.agility;
-  const pMod = randomFromRange(0, 255);
-  const eMod = randomFromRange(0, 255);
+  const pMod = randomFromRange([0, 255]);
+  const eMod = randomFromRange([0, 255]);
   const eRunMod = runModifiers[enemy.run];
   const updatedText = [...model.battleText];
   updatedText.push(`You try to run away...`);
@@ -150,11 +152,11 @@ function playerDamage(player, enemy, critHit, dodged) {
   const heroAttack = player.strength + player.weapon.mod;
   const enemyDefense = enemy.agility;
   if (critHit) {
-    const playerDamage = randomFromRange(...criticalDamageRange(heroAttack));
+    const playerDamage = randomFromRange(criticalDamageRange(heroAttack));
     return isPlayerDamageLow(playerDamage);
   } else {
     const playerDamage =
-      randomFromRange(...normalDamageRange(heroAttack, enemyDefense));
+      randomFromRange(normalDamageRange(heroAttack, enemyDefense));
     return isPlayerDamageLow(playerDamage);
   }
 }
@@ -269,8 +271,8 @@ function playerHeal(model, isHealmore) {
     }
     const healMax = maxhp - hp;
     const healAmt = (isHealmore) ?
-    randomFromRange(...playerHealmoreRange) :
-    randomFromRange(...playerHealRange);
+    randomFromRange(playerHealmoreRange) :
+    randomFromRange(playerHealRange);
     const finalHeal = (healMax < healAmt) ? healMax : healAmt;
     const newPlayerHP = hp + finalHeal;
     if (finalHeal === 0) {
@@ -309,8 +311,8 @@ function playerHurt(model, isHurtmore) {
       return {...model, player: newPlayer, battleText: updatedText};
     }
     const hurtDamage = (isHurtmore) ?
-      randomFromRange(...playerHurtmoreRange) :
-      randomFromRange(...playerHurtRange);
+      randomFromRange(playerHurtmoreRange) :
+      randomFromRange(playerHurtRange);
     const newHP = hp - hurtDamage;
     const updatedText = [...model.battleText];
     updatedText.push(`Player casts Hurt!`);

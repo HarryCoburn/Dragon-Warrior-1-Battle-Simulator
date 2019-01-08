@@ -178,11 +178,11 @@ function update(msg, model) {
     console.log(model);
     switch (msg.type) {
       case MSGS.START_BATTLE: {
-        const battleStart = startBattle(model);
-        model = battleStart.model;
-        const updatedText = [...model.battleText];
-        const enemyInit = battleStart.initiative;
+        model = startBattle(model);
+        console.log(model);
+        const enemyInit = model.initiative;
         if (enemyInit) {
+          const updatedText = [...model.battleText];
           updatedText.push(`The enemy gets to go first!`);
           model = {...model, battleText: updatedText};
           messageQueue.push(enemyTurnMsg);
