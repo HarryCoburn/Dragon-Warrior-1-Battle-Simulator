@@ -174,8 +174,6 @@ function update(msg, model) {
   while (messageQueue.length !== 0) {
     const msg = messageQueue.pop();
     console.log(msg);
-    console.log('Entering update with this model');
-    console.log(model);
     switch (msg.type) {
       case MSGS.START_BATTLE: {
         model = startBattle(model);

@@ -117,22 +117,22 @@ export function changeName(msg, model) {
   // correspond to different numbers. I'm omitting the punctuation
   // and defaulting everything to 0 that isn't a lower or uppercase letter.
   const sum = letters.map((x) => {
-    if ('gwM'.indexOf(x) > -1) return 0;
-    if ('hxN'.indexOf(x) > -1) return 1;
-    if ('iyO'.indexOf(x) > -1) return 2;
-    if ('jzP'.indexOf(x) > -1) return 3;
-    if ('kAQ'.indexOf(x) > -1) return 4;
-    if ('lBR'.indexOf(x) > -1) return 5;
-    if ('mCS'.indexOf(x) > -1) return 6;
-    if ('nDT'.indexOf(x) > -1) return 7;
-    if ('oEU'.indexOf(x) > -1) return 8;
-    if ('pFV'.indexOf(x) > -1) return 9;
-    if ('aqGW'.indexOf(x) > -1) return 10;
-    if ('brHX'.indexOf(x) > -1) return 11;
-    if ('csIY'.indexOf(x) > -1) return 12;
-    if ('dtJZ'.indexOf(x) > -1) return 13;
-    if ('euK'.indexOf(x) > -1) return 14;
-    if ('fvL'.indexOf(x) > -1) return 15;
+    if (R.gt('gwM'.indexOf(x), -1)) return 0;
+    if (R.gt('hxN'.indexOf(x), -1)) return 1;
+    if (R.gt('iyO'.indexOf(x), -1)) return 2;
+    if (R.gt('jzP'.indexOf(x), -1)) return 3;
+    if (R.gt('kAQ'.indexOf(x), -1)) return 4;
+    if (R.gt('lBR'.indexOf(x), -1)) return 5;
+    if (R.gt('mCS'.indexOf(x), -1)) return 6;
+    if (R.gt('nDT'.indexOf(x), -1)) return 7;
+    if (R.gt('oEU'.indexOf(x), -1)) return 8;
+    if (R.gt('pFV'.indexOf(x), -1)) return 9;
+    if (R.gt('aqGW'.indexOf(x), -1)) return 10;
+    if (R.gt('brHX'.indexOf(x), -1)) return 11;
+    if (R.gt('csIY'.indexOf(x), -1)) return 12;
+    if (R.gt('dtJZ'.indexOf(x), -1)) return 13;
+    if (R.gt('euK'.indexOf(x), -1)) return 14;
+    if (R.gt('fvL'.indexOf(x), -1)) return 15;
     return 0;
   }
   ).reduce(getSum);

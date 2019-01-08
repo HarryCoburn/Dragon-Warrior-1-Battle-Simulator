@@ -1,4 +1,5 @@
 import {capitalize, randomFromRange} from './Utils.js';
+import * as R from 'ramda';
 
 // Define low damage range
 const lowDamageRange = (x) => [minDamageHighDefense, maxDamageHighDefense(x)];
@@ -42,12 +43,12 @@ export function startEnemyRound(model) {
   const {enemySleep} = model;
   const updatedText = [...model.battleText];
   // Sleep Check
-  if (enemySleep > 0) {
-    if (enemySleep === 2) { // Free round
+  if (R.gt(enemySleep, 0)) {
+    if (R.equals(enemySleep, 2)) { // Free round
       updatedText.push(`The ${enemy.name} is asleep.`);
       return {...model, battleText: updatedText, enemySleep: 1};
     } else {
-      const wokeUp = (randomFromRange([1, wakeChance]) === wakeChance);
+      const wokeUp = R.equals(randomFromRange([1, wakeChance]), wakeChance);
       if (wokeUp) {
         updatedText.push(`The ${model.enemy.name} woke up!`);
       } else {
@@ -57,8 +58,8 @@ export function startEnemyRound(model) {
     }
   }
   // Run check
-  if (player.strength >= enemy.strength * 2) {
-    const enemyRun = randomFromRange([1, 4]) === 4;
+  if (R.gte(player.strength, enemy.strength * 2)) {
+    const enemyRun = R.equals(randomFromRange([1, 4]), 4);
     if (enemyRun) {
       updatedText.push(`The enemy flees from your superior strength!`);
       return {...model,
@@ -76,7 +77,7 @@ export function startEnemyRound(model) {
  */
 function enemyRound(model, aiPattern) {
   const {enemy, playerSleep, playerStop} = model;
-  if (aiPattern === undefined) {
+  if (R.isNil(aiPattern)) {
     aiPattern = enemy.pattern;
   }
   const chosenAttack = aiPattern.find(getAttack(sumOfWeights(aiPattern))).id;
@@ -100,7 +101,7 @@ function enemyRound(model, aiPattern) {
     case 'HEALMORE': {
       const willHeal = (enemy.hp / enemy.maxhp < 0.25) ? true : false;
       if (willHeal) {
-        const roundDone = (chosenAttack === 'HEAL') ? enemyHeal(model, false) : enemyHeal(model, true);
+        const roundDone = (R.equals(chosenAttack, 'HEAL')) ? enemyHeal(model, false) : enemyHeal(model, true);
         return roundDone;
       } else {
         console.log('Trying to make new AI pattern');
@@ -164,7 +165,7 @@ function enemyDamage(player, enemy) {
   const enemyAttack = enemy.strength;
   const heroDefense =
     Math.floor((player.agility + player.armor.mod + player.shield.mod)/2);
-  const heroHighDefense = heroDefense >= enemyAttack;
+  const heroHighDefense = R.gte(heroDefense, enemyAttack);
   // Enemy attack range calculation
   if (heroHighDefense) {
     return randomFromRange(lowDamageRange(enemyAttack));
@@ -211,8 +212,8 @@ function enemyHurt(model, isHurtmore) {
   const {hp, armor} = player;
   const magicDefense = armor.magDef;
   const hurtDamage = (isHurtmore) ?
-  (magicDefense) ?  randomFromRange(eHurtmoreRangeLow) :  randomFromRange(eHurtmoreRange) :
-  (magicDefense) ?  randomFromRange(eHurtRangeLow) : randomFromRange(eHurtRange);
+  (magicDefense) ? randomFromRange(eHurtmoreRangeLow) : randomFromRange(eHurtmoreRange) :
+  (magicDefense) ? randomFromRange(eHurtRangeLow) : randomFromRange(eHurtRange);
   const newHP = hp - hurtDamage;
   const updatedText = [...model.battleText];
   updatedText.push(`${capitalize(enemy.name)} casts ${spellName}!`);
@@ -266,7 +267,7 @@ function enemyHeal(model, isHealmore) {
  * @return {[type]}       [description]
  */
 function enemySleep(model) {
-  const {enemy} = model;
+  const {enemy, enemyStop} = model;
   const updatedText = [...model.battleText];
   updatedText.push(`The ${enemy.name} casts Sleep!`);
   if (enemyStop) {
@@ -274,7 +275,7 @@ function enemySleep(model) {
     return {...model, battleText: updatedText};
   }
   updatedText.push(`You fall asleep!`);
-  return {...model, playerSleep: true};
+  return {...model, battleText: updatedText, playerSleep: true};
 }
 
 /**
@@ -283,7 +284,7 @@ function enemySleep(model) {
  * @return {[type]}       [description]
  */
 function enemyStop(model) {
-  const {enemy} = model;
+  const {enemy, enemyStop} = model;
   const updatedText = [...model.battleText];
   updatedText.push(`The ${enemy.name} casts Stopspell!`);
   if (enemyStop) {

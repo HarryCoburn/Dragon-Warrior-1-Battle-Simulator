@@ -94,7 +94,7 @@ function buttonBlock(dispatch, player, model) {
 function shieldOptions(selectedShield) {
   return R.map(
       (shield) =>
-        option({value: shield, selected: selectedShield === shield}, shield),
+        option({value: shield, selected: R.equals(selectedShield, shield)}, shield),
       SHIELDS
   );
 }
@@ -107,7 +107,7 @@ function shieldOptions(selectedShield) {
 function armorOptions(selectedArmor) {
   return R.map(
       (armor) =>
-        option({value: armor, selected: selectedArmor === armor}, armor),
+        option({value: armor, selected: R.equals(selectedArmor, armor)}, armor),
       ARMORS
   );
 }
@@ -120,7 +120,7 @@ function armorOptions(selectedArmor) {
 function weaponOptions(selectedWeapon) {
   return R.map(
       (weapon) =>
-        option({value: weapon, selected: selectedWeapon === weapon}, weapon),
+        option({value: weapon, selected: R.equals(selectedWeapon, weapon)}, weapon),
       WEAPONS
   );
 }
@@ -131,12 +131,12 @@ function weaponOptions(selectedWeapon) {
  * @return {[type]}               [description]
  */
 function enemyOptions(selectedEnemy) {
-  if (selectedEnemy === undefined) {
+  if (R.isNil(selectedEnemy)) {
     selectedEnemy = '';
   }
   return R.map(
       (enemy) =>
-        option({value: enemy, selected: selectedEnemy === enemy}, enemy),
+        option({value: enemy, selected: R.equals(selectedEnemy, enemy)}, enemy),
       ENEMIES
   );
 }
@@ -149,7 +149,7 @@ function enemyOptions(selectedEnemy) {
 function levelOptions(selectedLevel) {
   return R.map(
       (level) =>
-        option({value: level, selected: selectedLevel === level}, level),
+        option({value: level, selected: R.equals(selectedLevel, level)}, level),
       LEVELS
   );
 }
@@ -162,7 +162,7 @@ function levelOptions(selectedLevel) {
 function herbOptions(selectedHerbCount) {
   return R.map(
       (herb) =>
-        option({value: herb, selected: selectedHerbCount === herb}, herb),
+        option({value: herb, selected: R.equals(selectedHerbCount, herb)}, herb),
       HERBCOUNT
   );
 }
