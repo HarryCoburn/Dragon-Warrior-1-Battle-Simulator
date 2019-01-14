@@ -1,14 +1,17 @@
+import * as R from 'ramda';
+
 const initModel = {
   battleText: [],
   enemy: '',
-  cleanBattleText: false,
-  inBattle: false,
+  cleanBattleText: R.F,
+  inBattle: R.F,
+  initiative: R.F,
   enemySleep: 0,
-  enemyStop: false,
-  playerSleep: false,
-  playerStop: false,
+  enemyStop: R.F,
+  playerSleep: R.F,
+  playerStop: R.F,
   sleepCount: 6,
-  critHit: false,
+  critHit: R.F,
   player: {
     name: 'Rollo',
     nameSum: 0,

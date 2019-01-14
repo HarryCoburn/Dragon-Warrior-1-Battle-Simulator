@@ -13,11 +13,11 @@ const dodgeSuccess = (dodgeChance) =>
 // Test to see if an enemy resisted a spell
 const resistLimit = 16;
 const resistCheck = (resistValue) =>
-  (randomFromRange([1, resistLimit]) <= resistValue) ? true : false;
+  (randomFromRange([1, resistLimit]) <= resistValue) ? R.T : R.F;
 
 // Test if you still sleeping at the start of a round.
-const checkSleepCount = sleepCount > 0;
-const stillSleeping = (model) => R.both(coinFlip, checkSleepCount);
+const checkSleepCount = (model) => model.sleepCount > 0;
+const stillSleeping = (model) => R.both(coinFlip, checkSleepCount(model));
 
 // Define normal damage range
 const normalDamageRange = (x, y) => [minDamage(x, y), maxDamage(x, y)];
@@ -33,17 +33,14 @@ const maxCriticalDamage = (x) => x;
 const runModifiers = [0.25, 0.375, 0.75, 1];
 
 // Tests sleep checks and waking up
-const stayAsleep = (model) => {
-  return {...model,
-    battleText: R.append('You are still asleep!', model.battleText),
-    sleepCount: R.dec(model.sleepCount)};
-};
+const stayAsleep = R.evolve({
+  battleText: R.append('You are still asleep!'),
+  sleepCount: R.dec()}
+);
 
-const wakeUp = (model) => {
-  return {...model,
-    battleText: R.append('You wake up!', model.battleText),
-    playerSleep: false};
-};
+const wakeUp = (model) => R.evolve({
+  battleText: R.append('You wake up!'),
+  playerSleep: R.F});
 
 const checkWakeUp = R.ifElse(stillSleeping, stayAsleep, wakeUp);
 
@@ -55,8 +52,10 @@ const checkWakeUp = R.ifElse(stillSleeping, stayAsleep, wakeUp);
  * @return {[type]}       [description]
  */
 export function startPlayerRound(model, msg) {
-  const sleepChecked = R.when(R.propEq('playerSleep', true), checkWakeUp)(model);
-  if (sleepChecked.playerSleep) return sleepChecked;
+  const sleepChecked = R.when(R.propEq('playerSleep', R.T), checkWakeUp)(model);
+  console.log('Checking sleep');
+  console.log(sleepChecked);
+  if (R.equals(sleepChecked.playerSleep, R.T)) return sleepChecked;
   switch (msg.type) {
     case 'CAST_HEAL':
     case 'CAST_HEALMORE':
@@ -112,9 +111,9 @@ function runAway(model) {
   const updatedText = [...model.battleText];
   updatedText.push(`You try to run away...`);
   const successfulRun = R.gt(pAgility * pMod, eAgility * eMod * eRunMod);
-  if (R.or(successfulRun, R.equals(model.enemySleep, true))) {
+  if (R.or(successfulRun, R.equals(model.enemySleep, R.T))) {
     updatedText.push(`You succeed in fleeing!`);
-    return {...model, inBattle: false, battleText: updatedText};
+    return {...model, inBattle: R.F, battleText: updatedText};
   } else {
     updatedText.push(`...but the enemy blocks you from running away!`);
     return {...model, battleText: updatedText};
@@ -199,7 +198,7 @@ function playerBattleMessages(model, damage, critHit, dodged) {
   if (enemy.hp <= 0) {
     battleText.push(
         `You have defeated the ${enemy.name}!`);
-    return {...model, battleText: battleText, inBattle: false};
+    return {...model, battleText: battleText, inBattle: R.F};
   }
   return {...model, battleText: battleText};
 }
@@ -319,7 +318,7 @@ function playerHurt(model, isHurtmore) {
       return {...model, player: newPlayer, battleText: updatedText};
     }
     updatedText.push(` ${capitalize(enemy.name)} is hurt by ${hurtDamage} hit points`);
-    const battleState = (newHP <= 0) ? false : true;
+    const battleState = (newHP <= 0) ? R.F : R.T;
     // Handle wins
     const newEnemy = {...enemy, hp: newHP};
     if (newHP <= 0) {
@@ -402,7 +401,7 @@ function playerStop(model) {
       return {...model, player: newPlayer, battleText: updatedText};
     }
     updatedText.push(` ${capitalize(enemy.name)}'s magic is now blocked!`);
-    const enemyStopState = true;
+    const enemyStopState = R.T;
     return {...model,
       player: newPlayer,
       battleText: updatedText, enemyStop: enemyStopState};

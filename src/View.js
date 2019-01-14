@@ -56,7 +56,7 @@ const statLineClasses = 'pv2 ph2 dib';
  */
 function buttonBlock(dispatch, player, model) {
   const {enemy, inBattle} = model;
-  if (!inBattle) {
+  if (R.equals(inBattle, R.F)) {
     return button({className: '', onclick: (e) => dispatch(startBattleMsg)}, 'Start Battle');
   }
   const buttons = [button({className: '', onclick: (e) => dispatch(fightMsg(player, enemy))}, 'Attack')];
@@ -244,7 +244,7 @@ function playerStatsBlock(dispatch, player) {
  * @return {[type]}              [description]
  */
 function enemyBlock(dispatch, enemy, inBattle) {
-  if (!inBattle) {
+  if (R.equals(inBattle, R.F)) {
     return div({className: 'w-25 mh3'}, [
       div({}, 'Enemy:'),
       select({

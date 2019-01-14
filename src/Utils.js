@@ -1,7 +1,7 @@
 import * as R from 'ramda';
 
 export const coinFlip = // Returns true/false like tossing a coin
-  R.equals(Math.floor(Math.random() * 2), R.F);
+  R.ifElse(R.equals(Math.floor(Math.random() * 2)), R.F, R.T);
 
 export const capitalize = // Capitalizes first character in string
   (x) => x.charAt(0).toUpperCase() + x.slice(1);

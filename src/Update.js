@@ -1,4 +1,4 @@
-// import * as R from 'ramda';
+import * as R from 'ramda';
 import {startBattle} from './Battle.js';
 import {startPlayerRound} from './PlayerAttack.js';
 import {startEnemyRound} from './EnemyAttack.js';
@@ -177,6 +177,7 @@ function update(msg, model) {
     switch (msg.type) {
       case MSGS.START_BATTLE: {
         model = startBattle(model);
+        console.log("Returning from startBattle");
         console.log(model);
         const enemyInit = model.initiative;
         if (enemyInit) {
@@ -197,9 +198,12 @@ function update(msg, model) {
       case MSGS.FIGHT:
       case MSGS.USE_HERB:
       case MSGS.RUN_AWAY: {
+        console.log("Player turn");
         model = startPlayerRound(model, msg);
         const {inBattle} = model;
-        if (!inBattle) {
+        console.log("Trying to end battle with ")
+        console.log(inBattle);
+        if (R.equals(inBattle, R.F)) {
           messageQueue.push(fightCleanupMsg);
         } else {
           messageQueue.push(enemyTurnMsg);
@@ -210,7 +214,7 @@ function update(msg, model) {
       case MSGS.ENEMY_TURN: {
         const enemyRound = startEnemyRound(model);
         model = enemyRound;
-        if (!model.inBattle) {
+        if (R.equals(model.inBattle, R.F)) {
           messageQueue.push(fightCleanupMsg);
         }
         break;
@@ -221,10 +225,10 @@ function update(msg, model) {
         const enemyName = capitalize(model.enemy.name);
         messageQueue.push(enemyMsg(enemyName));
         model = {...model,
-          cleanBattleText: true,
+          cleanBattleText: R.T,
           enemySleep: 0,
-          enemyStop: false,
-          playerSleep: false,
+          enemyStop: R.F,
+          playerSleep: R.F,
           sleepCount: 6,
         };
         break;

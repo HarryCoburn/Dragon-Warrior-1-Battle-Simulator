@@ -63,7 +63,7 @@ export function startEnemyRound(model) {
     if (enemyRun) {
       updatedText.push(`The enemy flees from your superior strength!`);
       return {...model,
-        battleText: updatedText, enemySleep: 0, inBattle: false};
+        battleText: updatedText, enemySleep: 0, inBattle: R.F};
     }
   }
   return enemyRound({...model, battleText: updatedText, enemySleep: 0});
@@ -99,7 +99,7 @@ function enemyRound(model, aiPattern) {
     }
     case 'HEAL':
     case 'HEALMORE': {
-      const willHeal = (enemy.hp / enemy.maxhp < 0.25) ? true : false;
+      const willHeal = (enemy.hp / enemy.maxhp < 0.25) ? R.T : R.F;
       if (willHeal) {
         const roundDone = (R.equals(chosenAttack, 'HEAL')) ? enemyHeal(model, false) : enemyHeal(model, true);
         return roundDone;
@@ -189,7 +189,7 @@ function enemyBattleMessages(model, damage) {
         `You have been defeated by the ${enemy.name}!`);
     return {...model,
       battleText,
-      inBattle: false};
+      inBattle: R.F};
   }
   return {...model,
     battleText,
@@ -222,7 +222,7 @@ function enemyHurt(model, isHurtmore) {
     return {...model, battleText: updatedText};
   }
   updatedText.push(` Player is hurt by ${hurtDamage} hit points.`);
-  const battleState = (newHP <= 0) ? false : true;
+  const battleState = (newHP <= 0) ? R.F : R.T;
   const newPlayer = {...player, hp: newHP};
   if (newHP <= 0) {
     updatedText.push(`You have been defeated by the ${capitalize(enemy.name)}.`);
@@ -275,7 +275,7 @@ function enemySleep(model) {
     return {...model, battleText: updatedText};
   }
   updatedText.push(`You fall asleep!`);
-  return {...model, battleText: updatedText, playerSleep: true};
+  return {...model, battleText: updatedText, playerSleep: R.T};
 }
 
 /**
@@ -293,7 +293,7 @@ function enemyStop(model) {
   }
   if (coinflip()) {
     updatedText.push(`Your magic has been blocked!`);
-    return {...model, battleText: updatedText, playerBlock: true};
+    return {...model, battleText: updatedText, playerBlock: R.T};
   } else {
     updatedText.push(`But the spell fails!`);
     return {...model, battleText: updatedText};
@@ -326,7 +326,7 @@ function enemyFire(model, isStrongfire) {
   const updatedText = [...model.battleText];
   updatedText.push(`${capitalize(enemy.name)} breathes ${spellName}!`);
   updatedText.push(` Player is hurt by ${fireDamage} hit points.`);
-  const battleState = (newHP <= 0) ? false : true;
+  const battleState = (newHP <= 0) ? R.F : R.T;
   const newPlayer = {...player, hp: newHP};
   if (newHP <= 0) {
     updatedText.push(`You have been defeated by the ${capitalize(enemy.name)}.`);

@@ -1,3 +1,5 @@
+import * as R from 'ramda'
+
 const ATTACKS = {
   ATTACK: 'ATTACK',
   HURT: 'HURT',
@@ -508,7 +510,7 @@ const ENEMIES = {
     pattern: [{id: ATTACKS.STOPSPELL, weight: 25},
       {id: ATTACKS.HURTMORE, weight: 75},
       {id: ATTACKS.ATTACK, weight: 25}],
-    voidCrit: true,
+    voidCrit: R.T,
     run: 3,
   },
   'Dragonlord (second form)': {
@@ -522,7 +524,7 @@ const ENEMIES = {
     dodge: 0,
     pattern: [{id: ATTACKS.STRONGFIRE, weight: 50},
       {id: ATTACKS.ATTACK, weight: 50}],
-    voidCrit: true,
+    voidCrit: R.T,
     run: 3,
   },
 };

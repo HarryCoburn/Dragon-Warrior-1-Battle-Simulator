@@ -3,8 +3,8 @@ import * as R from 'ramda';
 
 // Reset battleText
 const clearText = R.assoc('battleText', []);
-const clearTextCheck = R.assoc('cleanBattleText', false);
-const needToClean = R.propEq('cleanBattleText', true);
+const clearTextCheck = R.assoc('cleanBattleText', R.F);
+const needToClean = R.propEq('cleanBattleText', R.T);
 const cleanTextPipe = R.pipe(clearText, clearTextCheck);
 const checkClean = R.when(needToClean, cleanTextPipe);
 
@@ -12,12 +12,11 @@ const checkClean = R.when(needToClean, cleanTextPipe);
 const checkEnemyObject = R.propIs(Object, 'enemy');
 
 // Warn we haven't selected an enemy
-const chooseWarning = (model) => {
-  return {...model,
-    battleText: R.append(`Please choose an enemy!`, model.battleText),
-    cleanBattleText: true,
-    initiative: false};
-};
+const chooseWarning = R.evolve(
+    {battleText: R.append(`Please choose an enemy!`),
+      cleanBattleText: R.T,
+      initiative: R.F});
+
 
 // Prepare selected enemy or warn that it hasn't been selected
 const prepareEnemy = R.ifElse(checkEnemyObject, fightSetup, chooseWarning);
@@ -42,12 +41,14 @@ function fightSetup(model) {
   const {enemy, player} = model;
   const {hp} = enemy;
   const enemyHP = calculateEnemyHP(hp);
-  const finalModel = {...model,
-    player: R.assoc('hp', player.maxhp)(player),
-    enemy: R.pipe(R.assoc('hp', enemyHP), R.assoc('maxhp', enemyHP))(enemy),
-    inBattle: true,
-    battleText: R.append(`You are fighting the ${model.enemy.name}`, model.battleText)};
-  return {...finalModel, initiative: checkInit(finalModel)};
+  const finalModel = R.evolve({
+    player: R.assoc('hp', player.maxhp),
+    enemy: R.pipe(R.assoc('hp', enemyHP), R.assoc('maxhp', enemyHP)),
+    inBattle: R.T,
+    battleText: R.append(`You are fighting the ${model.enemy.name}`),
+    initiative: checkInit(model),
+  }, model);
+  return finalModel;
 }
 
 /**
