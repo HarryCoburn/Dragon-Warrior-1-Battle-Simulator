@@ -1,3 +1,5 @@
+import * as R from 'ramda';
+
 const LEVELS = {
   1: [4, 4, 15, 0],
   2: [5, 4, 22, 0],
@@ -43,13 +45,15 @@ export function changeStats(model) {
   const baseLevelStats = LEVELS[level];
   const newStats = statsCalc(nameSum, progression, baseLevelStats);
   const [newStr, newAgi, newHP, newMP] = newStats;
-  return {...player,
-    strength: newStr,
-    agility: newAgi,
-    hp: newHP,
-    maxhp: newHP,
-    mp: newMP};
-}
+  console.log('New Stats are...');
+  console.log(newStats);
+  return R.pipe(
+      R.assoc('strength', newStr),
+      R.assoc('agility', newAgi),
+      R.assoc('hp', newHP),
+      R.assoc('maxhp', newHP),
+      R.assoc('mp', newMP))(player);
+};
 
 /**
  * [statsCalc Generates new stats based on name and level]
@@ -59,48 +63,67 @@ export function changeStats(model) {
  * @return {[object]}                [New player statstics set]
  */
 function statsCalc(nameSum, progression, baseLevelStats) {
-  const [strength, agility, hp, mp] = baseLevelStats;
-  const newStats = [];
-  switch (progression) {
-    case 0: // long term HP/MP, short term Str and Agi
-      newStats.push(Math.floor((strength * (9/10)) +
-      (Math.floor(nameSum/4)) % 4)),
-      newStats.push(Math.floor((agility * (9/10)) +
-       (Math.floor(nameSum/4)) % 4)),
-      newStats.push(hp);
-      newStats.push(mp);
-      break;
-    case 1: // long term Strength and HP, short term Agi and MP
-      newStats.push(strength);
-      newStats.push(Math.floor((agility * (9/10)) +
-      (Math.floor(nameSum/4)) % 4));
-      newStats.push(hp);
-      newStats.push(Math.floor((mp * (9/10)) +
-      (Math.floor(nameSum/4)) % 4));
-      break;
-    case 2: // Long term Agi and MP, short term Str and HP
-      newStats.push(Math.floor((strength * (9/10)) +
-      (Math.floor(nameSum/4)) % 4)),
-      newStats.push(agility);
-      newStats.push(Math.floor((hp * (9/10)) +
-      (Math.floor(nameSum/4)) % 4)),
-      newStats.push(mp);
-      break;
-    case 3: // Long term str and agi, short term hp and mp
-      newStats.push(strength);
-      newStats.push(agility);
-      newStats.push(Math.floor((hp * (9/10)) +
-      (Math.floor(nameSum/4)) % 4)),
-      newStats.push(Math.floor((mp * (9/10)) +
-      (Math.floor(nameSum/4)) % 4));
-      break;
-    default:
-      console.log('Something went wrong with the progression calculations!');
-      break;
+  if (progression === 0) {
+    return prog0(nameSum, baseLevelStats);
   }
+  if (progression === 1) {
+    return prog1(nameSum, baseLevelStats);
+  }
+  if (progression === 2) {
+    return prog2(nameSum, baseLevelStats);
+  }
+  if (progression === 3) {
+    return prog3(nameSum, baseLevelStats);
+  }
+}
+
+const statSlowProg = (nameSum, stat) => Math.floor((stat * (9/10)) +
+(Math.floor(nameSum/4)) % 4);
+
+function prog0(nameSum, baseLevelStats) {
+  const [strength, agility, hp, mp] = baseLevelStats;
+  const statBuild = R.pipe(R.append(statSlowProg(nameSum, strength)),
+      R.append(statSlowProg(nameSum, agility)),
+      R.append(hp),
+      R.append(mp)
+  );
+  return statBuild([]);
+}
+
+// TODO
+function prog1(nameSum, baseLevelStats) {
+  const newStats = [];
+  const [strength, agility, hp, mp] = baseLevelStats;
+  newStats.push(strength);
+  newStats.push(statSlowProg(nameSum, agility));
+  newStats.push(hp);
+  newStats.push(statSlowProg(nameSum, mp));
   return newStats;
 }
 
+// TODO
+function prog2(nameSum, baseLevelStats) {
+  const newStats = [];
+  const [strength, agility, hp, mp] = baseLevelStats;
+  newStats.push(statSlowProg(nameSum, strength)),
+  newStats.push(agility);
+  newStats.push(statSlowProg(nameSum, hp)),
+  newStats.push(mp);
+  return newStats;
+}
+
+// TODO
+function prog3(nameSum, baseLevelStats) {
+  const newStats = [];
+  const [strength, agility, hp, mp] = baseLevelStats;
+  newStats.push(strength);
+  newStats.push(agility);
+  newStats.push(statSlowProg(nameSum, hp)),
+  newStats.push(statSlowProg(nameSum, mp));
+  return newStats;
+}
+
+// TODO
 // Such a stupid function, but necessary for simulation
 /**
  * [changeName computes the necessary variables for
