@@ -1,35 +1,35 @@
-import * as R from 'ramda';
-import {startBattle} from './Battle.js';
-import {startPlayerRound} from './PlayerAttack.js';
-import {startEnemyRound} from './EnemyAttack.js';
-import {changeWeapon, changeArmor, changeShield} from './Inventory.js';
-import {changeStats, changeName} from './Stats.js';
-import {changeEnemy} from './Enemies.js';
+import * as R from "ramda";
+import startBattle from "./Battle";
+import { startPlayerRound } from "./PlayerAttack";
+import startEnemyRound from "./EnemyAttack";
+import { changeWeapon, changeArmor, changeShield } from "./Inventory";
+import { changeStats, changeName } from "./Stats";
+import changeEnemy from "./Enemies";
 
 const MSGS = {
-  CAST_HEAL: 'CAST_HEAL',
-  CAST_HEALMORE: 'CAST_HEALMORE',
-  CAST_HURT: 'CAST_HURT',
-  CAST_HURTMORE: 'CAST_HURTMORE',
-  CAST_SLEEP: 'CAST_SLEEP',
-  CAST_STOPSPELL: 'CAST_STOPSPELL',
-  CHANGE_ARMOR: 'CHANGE_ARMOR',
-  CHANGE_ENEMY: 'CHANGE_ENEMY',
-  CHANGE_HERB: 'CHANGE_HERB',
-  CHANGE_LEVEL: 'CHANGE_LEVEL',
-  CHANGE_NAME: 'CHANGE_NAME',
-  CHANGE_SHIELD: 'CHANGE_SHIELD',
-  CHANGE_STATS: 'CHANGE_STATS',
-  CHANGE_WEAPON: 'CHANGE_WEAPON',
-  ENEMY_TURN: 'ENEMY_TURN',
-  FIGHT: 'FIGHT',
-  FIGHT_CLEANUP: 'FIGHT_CLEANUP',
-  RUN_AWAY: 'RUN_AWAY',
-  START_BATTLE: 'START_BATTLE',
-  USE_HERB: 'USE_HERB',
+  CAST_HEAL: "CAST_HEAL",
+  CAST_HEALMORE: "CAST_HEALMORE",
+  CAST_HURT: "CAST_HURT",
+  CAST_HURTMORE: "CAST_HURTMORE",
+  CAST_SLEEP: "CAST_SLEEP",
+  CAST_STOPSPELL: "CAST_STOPSPELL",
+  CHANGE_ARMOR: "CHANGE_ARMOR",
+  CHANGE_ENEMY: "CHANGE_ENEMY",
+  CHANGE_HERB: "CHANGE_HERB",
+  CHANGE_LEVEL: "CHANGE_LEVEL",
+  CHANGE_NAME: "CHANGE_NAME",
+  CHANGE_SHIELD: "CHANGE_SHIELD",
+  CHANGE_STATS: "CHANGE_STATS",
+  CHANGE_WEAPON: "CHANGE_WEAPON",
+  ENEMY_TURN: "ENEMY_TURN",
+  FIGHT: "FIGHT",
+  FIGHT_CLEANUP: "FIGHT_CLEANUP",
+  RUN_AWAY: "RUN_AWAY",
+  START_BATTLE: "START_BATTLE",
+  USE_HERB: "USE_HERB"
 };
 
-const capitalize = (x) => x.charAt(0).toUpperCase() + x.slice(1);
+const capitalize = x => x.charAt(0).toUpperCase() + x.slice(1);
 
 /**
  * [healmoreMsg description]
@@ -41,7 +41,7 @@ export function healmoreMsg(hp, maxhp) {
   return {
     type: MSGS.CAST_HEALMORE,
     hp,
-    maxhp,
+    maxhp
   };
 }
 /**
@@ -54,7 +54,7 @@ export function healMsg(hp, maxhp) {
   return {
     type: MSGS.CAST_HEAL,
     hp,
-    maxhp,
+    maxhp
   };
 }
 
@@ -66,7 +66,7 @@ export function healMsg(hp, maxhp) {
 export function shieldMsg(shield) {
   return {
     type: MSGS.CHANGE_SHIELD,
-    shield,
+    shield
   };
 }
 
@@ -78,7 +78,7 @@ export function shieldMsg(shield) {
 export function herbMsg(herb) {
   return {
     type: MSGS.CHANGE_HERB,
-    herb,
+    herb
   };
 }
 
@@ -90,7 +90,7 @@ export function herbMsg(herb) {
 export function armorMsg(armor) {
   return {
     type: MSGS.CHANGE_ARMOR,
-    armor,
+    armor
   };
 }
 
@@ -102,7 +102,7 @@ export function armorMsg(armor) {
 export function weaponMsg(weapon) {
   return {
     type: MSGS.CHANGE_WEAPON,
-    weapon,
+    weapon
   };
 }
 /**
@@ -113,7 +113,7 @@ export function weaponMsg(weapon) {
 export function enemyMsg(enemy) {
   return {
     type: MSGS.CHANGE_ENEMY,
-    enemy,
+    enemy
   };
 }
 /**
@@ -124,7 +124,7 @@ export function enemyMsg(enemy) {
 export function levelMsg(level) {
   return {
     type: MSGS.CHANGE_LEVEL,
-    level,
+    level
   };
 }
 /**
@@ -135,7 +135,7 @@ export function levelMsg(level) {
 export function nameMsg(name) {
   return {
     type: MSGS.CHANGE_NAME,
-    name,
+    name
   };
 }
 /**
@@ -148,19 +148,19 @@ export function fightMsg(player, enemy) {
   return {
     type: MSGS.FIGHT,
     player,
-    enemy,
+    enemy
   };
 }
-export const startBattleMsg = {type: MSGS.START_BATTLE};
-const statsMsg = {type: MSGS.CHANGE_STATS};
-const fightCleanupMsg = {type: MSGS.FIGHT_CLEANUP};
-const enemyTurnMsg = {type: MSGS.ENEMY_TURN};
-export const hurtMsg = {type: MSGS.CAST_HURT};
-export const sleepMsg = {type: MSGS.CAST_SLEEP};
-export const hurtmoreMsg = {type: MSGS.CAST_HURTMORE};
-export const stopspellMsg = {type: MSGS.CAST_STOPSPELL};
-export const useHerbMsg = {type: MSGS.USE_HERB};
-export const runMsg = {type: MSGS.RUN_AWAY};
+export const startBattleMsg = { type: MSGS.START_BATTLE };
+const statsMsg = { type: MSGS.CHANGE_STATS };
+const fightCleanupMsg = { type: MSGS.FIGHT_CLEANUP };
+const enemyTurnMsg = { type: MSGS.ENEMY_TURN };
+export const hurtMsg = { type: MSGS.CAST_HURT };
+export const sleepMsg = { type: MSGS.CAST_SLEEP };
+export const hurtmoreMsg = { type: MSGS.CAST_HURTMORE };
+export const stopspellMsg = { type: MSGS.CAST_STOPSPELL };
+export const useHerbMsg = { type: MSGS.USE_HERB };
+export const runMsg = { type: MSGS.RUN_AWAY };
 
 /**
  * [update Handles the update messages. Source of impurity]
@@ -169,21 +169,20 @@ export const runMsg = {type: MSGS.RUN_AWAY};
  * @return {[object]}       [updated Model]
  */
 function update(msg, model) {
+  let currModel = model;
   const messageQueue = [];
   messageQueue.push(msg);
   while (messageQueue.length !== 0) {
-    const msg = messageQueue.pop();
-    console.log(msg);
-    switch (msg.type) {
+    const currMsg = messageQueue.pop();
+    console.log(currMsg);
+    switch (currMsg.type) {
       case MSGS.START_BATTLE: {
-        model = startBattle(model);
-        console.log("Returning from startBattle");
-        console.log(model);
+        currModel = startBattle(model);
         const enemyInit = model.initiative;
         if (enemyInit) {
-          const updatedText = [...model.battleText];
+          const updatedText = [...currModel.battleText];
           updatedText.push(`The enemy gets to go first!`);
-          model = {...model, battleText: updatedText};
+          currModel = { ...currModel, battleText: updatedText };
           messageQueue.push(enemyTurnMsg);
         }
         break;
@@ -199,9 +198,9 @@ function update(msg, model) {
       case MSGS.USE_HERB:
       case MSGS.RUN_AWAY: {
         console.log("Player turn");
-        model = startPlayerRound(model, msg);
-        const {inBattle} = model;
-        console.log("Trying to end battle with ")
+        currModel = startPlayerRound(currModel, msg);
+        const { inBattle } = currModel;
+        console.log("Trying to end battle with ");
         console.log(inBattle);
         if (R.equals(inBattle, R.F)) {
           messageQueue.push(fightCleanupMsg);
@@ -212,9 +211,9 @@ function update(msg, model) {
       }
 
       case MSGS.ENEMY_TURN: {
-        const enemyRound = startEnemyRound(model);
-        model = enemyRound;
-        if (R.equals(model.inBattle, R.F)) {
+        const enemyRound = startEnemyRound(currModel);
+        currModel = enemyRound;
+        if (R.equals(currModel.inBattle, R.F)) {
           messageQueue.push(fightCleanupMsg);
         }
         break;
@@ -222,67 +221,67 @@ function update(msg, model) {
 
       case MSGS.FIGHT_CLEANUP: {
         messageQueue.push(statsMsg);
-        const enemyName = capitalize(model.enemy.name);
+        const enemyName = capitalize(currModel.enemy.name);
         messageQueue.push(enemyMsg(enemyName));
-        model = {...model,
+        currModel = {
+          ...currModel,
           cleanBattleText: R.T,
           enemySleep: 0,
           enemyStop: R.F,
           playerSleep: R.F,
-          sleepCount: 6,
+          sleepCount: 6
         };
         break;
       }
 
       case MSGS.CHANGE_NAME: {
-        model = {...model, player: changeName(msg, model)};
+        currModel = { ...currModel, player: changeName(currMsg, currModel) };
         messageQueue.push(statsMsg);
         break;
       }
       case MSGS.CHANGE_WEAPON: {
-        model = {...model, player: changeWeapon(msg, model)};
+        currModel = { ...model, player: changeWeapon(currMsg, currModel) };
         break;
       }
       case MSGS.CHANGE_ARMOR: {
-        model = {...model, player: changeArmor(msg, model)};
+        currModel = { ...currModel, player: changeArmor(currMsg, currModel) };
         break;
       }
       case MSGS.CHANGE_SHIELD: {
-        model = {...model, player: changeShield(msg, model)};
+        currModel = { ...currModel, player: changeShield(currMsg, currModel) };
         break;
       }
       case MSGS.CHANGE_ENEMY: {
-        model = {...model, enemy: changeEnemy(msg)};
+        currModel = { ...currModel, enemy: changeEnemy(currMsg) };
         break;
       }
       case MSGS.CHANGE_LEVEL: {
-        const {level} = msg;
-        const updatedPlayer = {...model.player, level: level};
-        model = {...model, player: updatedPlayer};
+        const { level } = currMsg;
+        const updatedPlayer = { ...currModel.player, level };
+        currModel = { ...currModel, player: updatedPlayer };
         messageQueue.push(statsMsg);
         break;
       }
       case MSGS.CHANGE_HERB: {
-        const {herb} = msg;
-        const updatedPlayer = {...model.player, herbCount: herb};
-        model = {...model, player: updatedPlayer};
+        const { herb } = currMsg;
+
+        const updatedPlayer = { ...currModel.player, herbCount: herb };
+
+        currModel = { ...currModel, player: updatedPlayer };
+
         break;
       }
       case MSGS.CHANGE_STATS: {
-        console.log('Entering Change Stats');
-        console.log(model);
-        model = {...model, player: changeStats(model)};
+        currModel = { ...currModel, player: changeStats(currModel) };
         break;
       }
       default:
-        console.log('Got to default in update function');
-        console.log('Attempted message was ' + msg);
-        return model;
+        console.log("Got to default in update function");
+        console.log(`Attempted message was ${msg}`);
+        return currModel;
     }
   }
-  console.log('Exiting update with this model:');
-  console.log(model);
-  return model;
-};
+  return currModel;
+}
 
 export default update;

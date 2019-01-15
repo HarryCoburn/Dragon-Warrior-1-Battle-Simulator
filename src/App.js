@@ -1,5 +1,5 @@
-import {diff, patch} from 'virtual-dom';
-import createElement from 'virtual-dom/create-element';
+import { diff, patch } from "virtual-dom";
+import createElement from "virtual-dom/create-element";
 
 /**
  * [app Core App, starts the program]
@@ -24,7 +24,7 @@ function app(initModel, update, view, node) {
     const patches = diff(currentView, updatedView);
     rootNode = patch(rootNode, patches);
     // Get the scrolling to work right.
-    const scrollDiv = document.getElementById('scrollbox');
+    const scrollDiv = document.getElementById("scrollbox");
     scrollDiv.scrollTop = scrollDiv.scrollHeight;
     currentView = updatedView;
   }

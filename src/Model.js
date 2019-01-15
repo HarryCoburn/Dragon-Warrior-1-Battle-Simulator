@@ -1,8 +1,8 @@
-import * as R from 'ramda';
+import * as R from "ramda";
 
 const initModel = {
   battleText: [],
-  enemy: '',
+  enemy: "",
   cleanBattleText: R.F,
   inBattle: R.F,
   initiative: R.F,
@@ -13,7 +13,7 @@ const initModel = {
   sleepCount: 6,
   critHit: R.F,
   player: {
-    name: 'Rollo',
+    name: "Rollo",
     nameSum: 0,
     progression: 0,
     level: 1,
@@ -22,11 +22,11 @@ const initModel = {
     hp: 15,
     maxhp: 15,
     mp: 0,
-    weapon: {name: 'Unarmed', mod: 0},
-    armor: {name: 'Naked', mod: 0},
-    shield: {name: 'Naked', mod: 0},
-    herbCount: 0,
-  },
+    weapon: { name: "Unarmed", mod: 0 },
+    armor: { name: "Naked", mod: 0 },
+    shield: { name: "Naked", mod: 0 },
+    herbCount: 0
+  }
 };
 
 export default initModel;

@@ -1,7 +1,8 @@
-import hh from 'hyperscript-helpers';
-import {h} from 'virtual-dom';
-import * as R from 'ramda';
-import {startBattleMsg,
+import hh from "hyperscript-helpers";
+import { h } from "virtual-dom";
+import * as R from "ramda";
+import {
+  startBattleMsg,
   fightMsg,
   enemyMsg,
   levelMsg,
@@ -17,35 +18,83 @@ import {startBattleMsg,
   stopspellMsg,
   herbMsg,
   useHerbMsg,
-  runMsg} from './Update';
+  runMsg
+} from "./Update";
 
-const {
-  div,
-  h1,
-  p,
-  pre,
-  button,
-  input,
-  select,
-  option,
-} = hh(h);
+const { div, h1, p, pre, button, input, select, option } = hh(h);
 
-const battleText = R.map((x) => p({}, x));
+const battleText = R.map(x => p({}, x));
 const numRange = (size, startAt = 0) =>
-  [...Array(size).keys()].map((i) => i + startAt);
-const ENEMIES = ['Choose an enemy', 'Slime', 'Red Slime', 'Drakee', 'Ghost', 'Magician', 'Magidrakee', 'Scorpion', 'Druin',
-  'Poltergeist', 'Droll', 'Drakeema', 'Skeleton', 'Warlock', 'Metal Scorpion', 'Wolf', 'Wraith', 'Metal Slime', 'Specter', 'Wolflord',
-  'Druinlord', 'Drollmagi', 'Wyvern', 'Rogue Scorpion', 'Wraith Knight', 'Golem', 'Goldman', 'Knight', 'Magiwyvern',
-  'Demon Knight', 'Werewolf', 'Green Dragon', 'Starwyvern', 'Wizard', 'Axe Knight', 'Blue Dragon', 'Stoneman', 'Armored Knight',
-  'Red Dragon', 'Dragonlord (first form)', 'Dragonlord (second form)'];
+  [...Array(size).keys()].map(i => i + startAt);
+const ENEMIES = [
+  "Choose an enemy",
+  "Slime",
+  "Red Slime",
+  "Drakee",
+  "Ghost",
+  "Magician",
+  "Magidrakee",
+  "Scorpion",
+  "Druin",
+  "Poltergeist",
+  "Droll",
+  "Drakeema",
+  "Skeleton",
+  "Warlock",
+  "Metal Scorpion",
+  "Wolf",
+  "Wraith",
+  "Metal Slime",
+  "Specter",
+  "Wolflord",
+  "Druinlord",
+  "Drollmagi",
+  "Wyvern",
+  "Rogue Scorpion",
+  "Wraith Knight",
+  "Golem",
+  "Goldman",
+  "Knight",
+  "Magiwyvern",
+  "Demon Knight",
+  "Werewolf",
+  "Green Dragon",
+  "Starwyvern",
+  "Wizard",
+  "Axe Knight",
+  "Blue Dragon",
+  "Stoneman",
+  "Armored Knight",
+  "Red Dragon",
+  "Dragonlord (first form)",
+  "Dragonlord (second form)"
+];
 const LEVELS = numRange(30, 1);
 const HERBCOUNT = numRange(7);
-const WEAPONS = ['Unarmed', 'Bamboo Pole', 'Club', 'Copper Sword', 'Hand Axe', 'Broad Sword', 'Flame Sword', 'Erdrick\'s Sword'];
-const ARMORS = ['Naked', 'Clothes', 'Leather Armor', 'Chain Mail', 'Half Plate', 'Full Plate', 'Magic Armor', 'Erdrick\'s Armor'];
-const SHIELDS = ['Naked', 'Small Shield', 'Large Shield', 'Silver Shield'];
+const WEAPONS = [
+  "Unarmed",
+  "Bamboo Pole",
+  "Club",
+  "Copper Sword",
+  "Hand Axe",
+  "Broad Sword",
+  "Flame Sword",
+  "Erdrick's Sword"
+];
+const ARMORS = [
+  "Naked",
+  "Clothes",
+  "Leather Armor",
+  "Chain Mail",
+  "Half Plate",
+  "Full Plate",
+  "Magic Armor",
+  "Erdrick's Armor"
+];
+const SHIELDS = ["Naked", "Small Shield", "Large Shield", "Silver Shield"];
 const statLine = (className, label, value) =>
-  div({className}, `${label}: ${value}`);
-const statLineClasses = 'pv2 ph2 dib';
+  div({ className }, `${label}: ${value}`);
+const statLineClasses = "pv2 ph2 dib";
 
 /**
  * [buttonBlock description]
@@ -55,36 +104,74 @@ const statLineClasses = 'pv2 ph2 dib';
  * @return {[type]}          [description]
  */
 function buttonBlock(dispatch, player, model) {
-  const {enemy, inBattle} = model;
+  const { enemy, inBattle } = model;
   if (R.equals(inBattle, R.F)) {
-    return button({className: '', onclick: (e) => dispatch(startBattleMsg)}, 'Start Battle');
+    return button(
+      { className: "", onclick: e => dispatch(startBattleMsg) },
+      "Start Battle"
+    );
   }
-  const buttons = [button({className: '', onclick: (e) => dispatch(fightMsg(player, enemy))}, 'Attack')];
+  const buttons = [
+    button(
+      { className: "", onclick: e => dispatch(fightMsg(player, enemy)) },
+      "Attack"
+    )
+  ];
   if (player.level >= 3) {
-    buttons.push(button({className: '', onclick: (e) => dispatch(healMsg(player.hp, player.maxhp))}, 'Heal'));
+    buttons.push(
+      button(
+        {
+          className: "",
+          onclick: e => dispatch(healMsg(player.hp, player.maxhp))
+        },
+        "Heal"
+      )
+    );
   }
   if (player.level >= 4) {
-    buttons.push(button({className: '', onclick: (e) => dispatch(hurtMsg)}, 'Hurt'));
+    buttons.push(
+      button({ className: "", onclick: e => dispatch(hurtMsg) }, "Hurt")
+    );
   }
   if (player.level >= 7) {
-    buttons.push(button({className: '', onclick: (e) => dispatch(sleepMsg)}, 'Sleep'));
+    buttons.push(
+      button({ className: "", onclick: e => dispatch(sleepMsg) }, "Sleep")
+    );
   }
   if (player.level >= 10) {
-    buttons.push(button({className: '', onclick: (e) => dispatch(stopspellMsg)}, 'Stopspell'));
+    buttons.push(
+      button(
+        { className: "", onclick: e => dispatch(stopspellMsg) },
+        "Stopspell"
+      )
+    );
   }
   if (player.level >= 17) {
-    buttons.push(button({className: '', onclick: (e) => dispatch(healmoreMsg(player.hp, player.maxhp))}, 'Healmore'));
+    buttons.push(
+      button(
+        {
+          className: "",
+          onclick: e => dispatch(healmoreMsg(player.hp, player.maxhp))
+        },
+        "Healmore"
+      )
+    );
   }
   if (player.level >= 19) {
-    buttons.push(button({className: '', onclick: (e) => dispatch(hurtmoreMsg)}, 'Hurtmore'));
+    buttons.push(
+      button({ className: "", onclick: e => dispatch(hurtmoreMsg) }, "Hurtmore")
+    );
   }
   if (player.herbCount > 0) {
-    buttons.push(button({className: '', onclick: (e) => dispatch(useHerbMsg)}, 'Use Herb'));
+    buttons.push(
+      button({ className: "", onclick: e => dispatch(useHerbMsg) }, "Use Herb")
+    );
   }
-  buttons.push(button({className: '', onclick: (e) => dispatch(runMsg)}, 'Run Away'));
+  buttons.push(
+    button({ className: "", onclick: e => dispatch(runMsg) }, "Run Away")
+  );
   return buttons;
 }
-
 
 /**
  * [shieldOptions description]
@@ -93,9 +180,12 @@ function buttonBlock(dispatch, player, model) {
  */
 function shieldOptions(selectedShield) {
   return R.map(
-      (shield) =>
-        option({value: shield, selected: R.equals(selectedShield, shield)}, shield),
-      SHIELDS
+    shield =>
+      option(
+        { value: shield, selected: R.equals(selectedShield, shield) },
+        shield
+      ),
+    SHIELDS
   );
 }
 
@@ -106,9 +196,9 @@ function shieldOptions(selectedShield) {
  */
 function armorOptions(selectedArmor) {
   return R.map(
-      (armor) =>
-        option({value: armor, selected: R.equals(selectedArmor, armor)}, armor),
-      ARMORS
+    armor =>
+      option({ value: armor, selected: R.equals(selectedArmor, armor) }, armor),
+    ARMORS
   );
 }
 
@@ -119,9 +209,12 @@ function armorOptions(selectedArmor) {
  */
 function weaponOptions(selectedWeapon) {
   return R.map(
-      (weapon) =>
-        option({value: weapon, selected: R.equals(selectedWeapon, weapon)}, weapon),
-      WEAPONS
+    weapon =>
+      option(
+        { value: weapon, selected: R.equals(selectedWeapon, weapon) },
+        weapon
+      ),
+    WEAPONS
   );
 }
 
@@ -130,14 +223,15 @@ function weaponOptions(selectedWeapon) {
  * @param  {[type]} selectedEnemy [description]
  * @return {[type]}               [description]
  */
-function enemyOptions(selectedEnemy) {
+function enemyOptions(selected) {
+  let selectedEnemy = selected;
   if (R.isNil(selectedEnemy)) {
-    selectedEnemy = '';
+    selectedEnemy = "";
   }
   return R.map(
-      (enemy) =>
-        option({value: enemy, selected: R.equals(selectedEnemy, enemy)}, enemy),
-      ENEMIES
+    enemy =>
+      option({ value: enemy, selected: R.equals(selectedEnemy, enemy) }, enemy),
+    ENEMIES
   );
 }
 
@@ -148,9 +242,9 @@ function enemyOptions(selectedEnemy) {
  */
 function levelOptions(selectedLevel) {
   return R.map(
-      (level) =>
-        option({value: level, selected: R.equals(selectedLevel, level)}, level),
-      LEVELS
+    level =>
+      option({ value: level, selected: R.equals(selectedLevel, level) }, level),
+    LEVELS
   );
 }
 
@@ -161,9 +255,12 @@ function levelOptions(selectedLevel) {
  */
 function herbOptions(selectedHerbCount) {
   return R.map(
-      (herb) =>
-        option({value: herb, selected: R.equals(selectedHerbCount, herb)}, herb),
-      HERBCOUNT
+    herb =>
+      option(
+        { value: herb, selected: R.equals(selectedHerbCount, herb) },
+        herb
+      ),
+    HERBCOUNT
   );
 }
 
@@ -174,46 +271,54 @@ function herbOptions(selectedHerbCount) {
  * @return {[type]}          [description]
  */
 function playerBlock(dispatch, player) {
-  return div({className: 'w-25 mh3'}, [
-    div({className: ''}, 'Player Name:'),
-    input({
-      oninput: (e) => dispatch(nameMsg(e.target.value)),
-    }, 'Player Name'),
-    div({className: 'mv2'}, 'Player Level:'),
-    select({
-      className: 'db pa2 ba input-reset br1 bg-white ba b--black',
-      onchange: (e) => dispatch(levelMsg(parseInt(e.target.value))),
-    },
-    levelOptions(player.level),
+  return div({ className: "w-25 mh3" }, [
+    div({ className: "" }, "Player Name:"),
+    input(
+      {
+        oninput: e => dispatch(nameMsg(e.target.value))
+      },
+      "Player Name"
     ),
-    div({className: 'mv2'}, 'Player Weapon:'),
-    select({
-      className: 'db pa2 ba input-reset br1 bg-white ba b--black',
-      onchange: (e) => dispatch(weaponMsg(e.target.value)),
-    },
-    weaponOptions(player.weapon),
+    div({ className: "mv2" }, "Player Level:"),
+    select(
+      {
+        className: "db pa2 ba input-reset br1 bg-white ba b--black",
+        onchange: e => dispatch(levelMsg(parseInt(e.target.value, 10)))
+      },
+      levelOptions(player.level)
     ),
-    div({className: 'mv2'}, 'Player Armor:'),
-    select({
-      className: 'db pa2 ba input-reset br1 bg-white ba b--black',
-      onchange: (e) => dispatch(armorMsg(e.target.value)),
-    },
-    armorOptions(player.armor),
+    div({ className: "mv2" }, "Player Weapon:"),
+    select(
+      {
+        className: "db pa2 ba input-reset br1 bg-white ba b--black",
+        onchange: e => dispatch(weaponMsg(e.target.value))
+      },
+      weaponOptions(player.weapon)
     ),
-    div({className: 'mv2'}, 'Player Shield:'),
-    select({
-      className: 'db pa2 ba input-reset br1 bg-white ba b--black',
-      onchange: (e) => dispatch(shieldMsg(e.target.value)),
-    },
-    shieldOptions(player.shield),
+    div({ className: "mv2" }, "Player Armor:"),
+    select(
+      {
+        className: "db pa2 ba input-reset br1 bg-white ba b--black",
+        onchange: e => dispatch(armorMsg(e.target.value))
+      },
+      armorOptions(player.armor)
     ),
-    div({className: 'mv2'}, 'Herb Amount:'),
-    select({
-      className: 'db pa2 ba input-reset br1 bg-white ba b--black',
-      onchange: (e) => dispatch(herbMsg(parseInt(e.target.value))),
-    },
-    herbOptions(player.herbCount),
+    div({ className: "mv2" }, "Player Shield:"),
+    select(
+      {
+        className: "db pa2 ba input-reset br1 bg-white ba b--black",
+        onchange: e => dispatch(shieldMsg(e.target.value))
+      },
+      shieldOptions(player.shield)
     ),
+    div({ className: "mv2" }, "Herb Amount:"),
+    select(
+      {
+        className: "db pa2 ba input-reset br1 bg-white ba b--black",
+        onchange: e => dispatch(herbMsg(parseInt(e.target.value, 10)))
+      },
+      herbOptions(player.herbCount)
+    )
   ]);
 }
 
@@ -224,15 +329,16 @@ function playerBlock(dispatch, player) {
  * @return {[type]}          [description]
  */
 function playerStatsBlock(dispatch, player) {
-  const {hp, maxhp, mp, weapon, armor, shield, level} = player;
-  return div({className: 'w-25 mh3'}, [
-    div({className: ''}, 'Player Stats:'),
-    statLine(statLineClasses, 'Player Level', `${level}`),
-    statLine(statLineClasses, 'Player Health', `${hp} / ${maxhp}`),
-    statLine(statLineClasses, 'Player Magic', mp),
-    statLine(statLineClasses, 'Player Weapon', weapon.name),
-    statLine(statLineClasses, 'Player Armor', armor.name),
-    statLine(statLineClasses, 'Player Shield', shield.name)]);
+  const { hp, maxhp, mp, weapon, armor, shield, level } = player;
+  return div({ className: "w-25 mh3" }, [
+    div({ className: "" }, "Player Stats:"),
+    statLine(statLineClasses, "Player Level", `${level}`),
+    statLine(statLineClasses, "Player Health", `${hp} / ${maxhp}`),
+    statLine(statLineClasses, "Player Magic", mp),
+    statLine(statLineClasses, "Player Weapon", weapon.name),
+    statLine(statLineClasses, "Player Armor", armor.name),
+    statLine(statLineClasses, "Player Shield", shield.name)
+  ]);
 }
 
 /**
@@ -245,21 +351,21 @@ function playerStatsBlock(dispatch, player) {
  */
 function enemyBlock(dispatch, enemy, inBattle) {
   if (R.equals(inBattle, R.F)) {
-    return div({className: 'w-25 mh3'}, [
-      div({}, 'Enemy:'),
-      select({
-        className: 'db pa2 ba input-reset br1 bg-white ba b--black',
-        onchange: (e) => dispatch(enemyMsg(e.target.value)),
-      },
-      enemyOptions(enemy.name),
-      )]
-    );
-  } else {
-    const {hp} = enemy;
-    return div({className: 'w-25 mh3'}, [
-      statLine(statLineClasses, 'Enemy Health', hp),
+    return div({ className: "w-25 mh3" }, [
+      div({}, "Enemy:"),
+      select(
+        {
+          className: "db pa2 ba input-reset br1 bg-white ba b--black",
+          onchange: e => dispatch(enemyMsg(e.target.value))
+        },
+        enemyOptions(enemy.name)
+      )
     ]);
   }
+  const { hp } = enemy;
+  return div({ className: "w-25 mh3" }, [
+    statLine(statLineClasses, "Enemy Health", hp)
+  ]);
 }
 
 /**
@@ -271,10 +377,10 @@ function enemyBlock(dispatch, enemy, inBattle) {
  * @return {[type]}          [description]
  */
 function statsBlock(dispatch, player, enemy, model) {
-  return div({className: 'flex'}, [
+  return div({ className: "flex" }, [
     playerBlock(dispatch, player),
     enemyBlock(dispatch, enemy, model.inBattle),
-    playerStatsBlock(dispatch, player),
+    playerStatsBlock(dispatch, player)
   ]);
 }
 
@@ -285,15 +391,17 @@ function statsBlock(dispatch, player, enemy, model) {
  * @return {[function]}          [The final view to be rendered to the DOM]
  */
 function view(dispatch, model) {
-  const {player, enemy} = model;
-  return div({className: 'mw8 center'}, [
-    h1({className: 'f2 pv2 bb'}, 'Dragon Quest 1 Battle Simulator'),
-    div('#scrollbox', {className: 'h5 overflow-y-scroll'},
-        battleText(model.battleText),
+  const { player, enemy } = model;
+  return div({ className: "mw8 center" }, [
+    h1({ className: "f2 pv2 bb" }, "Dragon Quest 1 Battle Simulator"),
+    div(
+      "#scrollbox",
+      { className: "h5 overflow-y-scroll" },
+      battleText(model.battleText)
     ),
     buttonBlock(dispatch, player, model),
     statsBlock(dispatch, player, enemy, model),
-    pre(JSON.stringify(model, null, 2)),
+    pre(JSON.stringify(model, null, 2))
   ]);
 }
 

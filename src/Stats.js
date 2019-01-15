@@ -1,4 +1,4 @@
-import * as R from 'ramda';
+import * as R from "ramda";
 
 const LEVELS = {
   1: [4, 4, 15, 0],
@@ -30,30 +30,58 @@ const LEVELS = {
   27: [125, 107, 189, 175],
   28: [130, 115, 195, 180],
   29: [135, 120, 200, 190],
-  30: [140, 130, 210, 200],
+  30: [140, 130, 210, 200]
 };
 const getSum = (total, num) => total + num;
+const statSlowProg = (nameSum, stat) =>
+  Math.floor(stat * (9 / 10) + (Math.floor(nameSum / 4) % 4));
 
-/**
- * [changeStats description]
- * @param  {[type]} model [description]
- * @return {[type]}       [description]
- */
-export function changeStats(model) {
-  const {player} = model;
-  const {nameSum, progression, level} = player;
-  const baseLevelStats = LEVELS[level];
-  const newStats = statsCalc(nameSum, progression, baseLevelStats);
-  const [newStr, newAgi, newHP, newMP] = newStats;
-  console.log('New Stats are...');
-  console.log(newStats);
-  return R.pipe(
-      R.assoc('strength', newStr),
-      R.assoc('agility', newAgi),
-      R.assoc('hp', newHP),
-      R.assoc('maxhp', newHP),
-      R.assoc('mp', newMP))(player);
-};
+function prog0(nameSum, baseLevelStats) {
+  const [strength, agility, hp, mp] = baseLevelStats;
+  const statBuild = R.pipe(
+    R.append(statSlowProg(nameSum, strength)),
+    R.append(statSlowProg(nameSum, agility)),
+    R.append(hp),
+    R.append(mp)
+  );
+  return statBuild([]);
+}
+
+// TODO
+function prog1(nameSum, baseLevelStats) {
+  const [strength, agility, hp, mp] = baseLevelStats;
+  const statBuild = R.pipe(
+    R.append(strength),
+    R.append(statSlowProg(nameSum, agility)),
+    R.append(hp),
+    R.append(statSlowProg(nameSum, mp))
+  );
+  return statBuild([]);
+}
+
+// TODO
+function prog2(nameSum, baseLevelStats) {
+  const [strength, agility, hp, mp] = baseLevelStats;
+  const statBuild = R.pipe(
+    R.append(statSlowProg(nameSum, strength)),
+    R.append(agility),
+    R.append(statSlowProg(nameSum, hp)),
+    R.append(mp)
+  );
+  return statBuild([]);
+}
+
+// TODO
+function prog3(nameSum, baseLevelStats) {
+  const [strength, agility, hp, mp] = baseLevelStats;
+  const statBuild = R.pipe(
+    R.append(strength),
+    R.append(agility),
+    R.append(statSlowProg(nameSum, hp)),
+    R.append(statSlowProg(nameSum, mp))
+  );
+  return statBuild([]);
+}
 
 /**
  * [statsCalc Generates new stats based on name and level]
@@ -75,52 +103,29 @@ function statsCalc(nameSum, progression, baseLevelStats) {
   if (progression === 3) {
     return prog3(nameSum, baseLevelStats);
   }
+  return console.log("Invalid progression var in statsCalc");
 }
 
-const statSlowProg = (nameSum, stat) => Math.floor((stat * (9/10)) +
-(Math.floor(nameSum/4)) % 4);
-
-function prog0(nameSum, baseLevelStats) {
-  const [strength, agility, hp, mp] = baseLevelStats;
-  const statBuild = R.pipe(R.append(statSlowProg(nameSum, strength)),
-      R.append(statSlowProg(nameSum, agility)),
-      R.append(hp),
-      R.append(mp)
-  );
-  return statBuild([]);
-}
-
-// TODO
-function prog1(nameSum, baseLevelStats) {
-  const newStats = [];
-  const [strength, agility, hp, mp] = baseLevelStats;
-  newStats.push(strength);
-  newStats.push(statSlowProg(nameSum, agility));
-  newStats.push(hp);
-  newStats.push(statSlowProg(nameSum, mp));
-  return newStats;
-}
-
-// TODO
-function prog2(nameSum, baseLevelStats) {
-  const newStats = [];
-  const [strength, agility, hp, mp] = baseLevelStats;
-  newStats.push(statSlowProg(nameSum, strength)),
-  newStats.push(agility);
-  newStats.push(statSlowProg(nameSum, hp)),
-  newStats.push(mp);
-  return newStats;
-}
-
-// TODO
-function prog3(nameSum, baseLevelStats) {
-  const newStats = [];
-  const [strength, agility, hp, mp] = baseLevelStats;
-  newStats.push(strength);
-  newStats.push(agility);
-  newStats.push(statSlowProg(nameSum, hp)),
-  newStats.push(statSlowProg(nameSum, mp));
-  return newStats;
+/**
+ * [changeStats description]
+ * @param  {[type]} model [description]
+ * @return {[type]}       [description]
+ */
+export function changeStats(model) {
+  const { player } = model;
+  const { nameSum, progression, level } = player;
+  const baseLevelStats = LEVELS[level];
+  const newStats = statsCalc(nameSum, progression, baseLevelStats);
+  const [newStr, newAgi, newHP, newMP] = newStats;
+  console.log("New Stats are...");
+  console.log(newStats);
+  return R.pipe(
+    R.assoc("strength", newStr),
+    R.assoc("agility", newAgi),
+    R.assoc("hp", newHP),
+    R.assoc("maxhp", newHP),
+    R.assoc("mp", newMP)
+  )(player);
 }
 
 // TODO
@@ -133,33 +138,34 @@ function prog3(nameSum, baseLevelStats) {
  * @return {[object]}      [Name sum and progression type]
  */
 export function changeName(msg, model) {
-  const {name} = msg;
-  const {player} = model;
-  const letters = name.split('').slice(0, 4); // Get the first four letters of the name.
+  const { name } = msg;
+  const { player } = model;
+  const letters = name.split("").slice(0, 4); // Get the first four letters of the name.
   // The columns of the name entry screen  in the original game
   // correspond to different numbers. I'm omitting the punctuation
   // and defaulting everything to 0 that isn't a lower or uppercase letter.
-  const sum = letters.map((x) => {
-    if (R.gt('gwM'.indexOf(x), -1)) return 0;
-    if (R.gt('hxN'.indexOf(x), -1)) return 1;
-    if (R.gt('iyO'.indexOf(x), -1)) return 2;
-    if (R.gt('jzP'.indexOf(x), -1)) return 3;
-    if (R.gt('kAQ'.indexOf(x), -1)) return 4;
-    if (R.gt('lBR'.indexOf(x), -1)) return 5;
-    if (R.gt('mCS'.indexOf(x), -1)) return 6;
-    if (R.gt('nDT'.indexOf(x), -1)) return 7;
-    if (R.gt('oEU'.indexOf(x), -1)) return 8;
-    if (R.gt('pFV'.indexOf(x), -1)) return 9;
-    if (R.gt('aqGW'.indexOf(x), -1)) return 10;
-    if (R.gt('brHX'.indexOf(x), -1)) return 11;
-    if (R.gt('csIY'.indexOf(x), -1)) return 12;
-    if (R.gt('dtJZ'.indexOf(x), -1)) return 13;
-    if (R.gt('euK'.indexOf(x), -1)) return 14;
-    if (R.gt('fvL'.indexOf(x), -1)) return 15;
-    return 0;
-  }
-  ).reduce(getSum);
+  const sum = letters
+    .map(x => {
+      if (R.gt("gwM".indexOf(x), -1)) return 0;
+      if (R.gt("hxN".indexOf(x), -1)) return 1;
+      if (R.gt("iyO".indexOf(x), -1)) return 2;
+      if (R.gt("jzP".indexOf(x), -1)) return 3;
+      if (R.gt("kAQ".indexOf(x), -1)) return 4;
+      if (R.gt("lBR".indexOf(x), -1)) return 5;
+      if (R.gt("mCS".indexOf(x), -1)) return 6;
+      if (R.gt("nDT".indexOf(x), -1)) return 7;
+      if (R.gt("oEU".indexOf(x), -1)) return 8;
+      if (R.gt("pFV".indexOf(x), -1)) return 9;
+      if (R.gt("aqGW".indexOf(x), -1)) return 10;
+      if (R.gt("brHX".indexOf(x), -1)) return 11;
+      if (R.gt("csIY".indexOf(x), -1)) return 12;
+      if (R.gt("dtJZ".indexOf(x), -1)) return 13;
+      if (R.gt("euK".indexOf(x), -1)) return 14;
+      if (R.gt("fvL".indexOf(x), -1)) return 15;
+      return 0;
+    })
+    .reduce(getSum);
   // Get the progression type, an integer from 0 to 3
   const type = Math.floor(sum % 4);
-  return {...player, name: name, nameSum: sum, progression: type};
+  return { ...player, name, nameSum: sum, progression: type };
 }
