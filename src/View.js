@@ -21,11 +21,16 @@ import {
   runMsg
 } from "./Update";
 
+// Function constants
 const { div, h1, p, pre, button, input, select, option } = hh(h);
-
 const battleText = R.map(x => p({}, x));
 const numRange = (size, startAt = 0) =>
   [...Array(size).keys()].map(i => i + startAt);
+const statLine = (className, label, value) =>
+  div({ className }, `${label}: ${value}`);
+const statLineClasses = "pv2 ph2 dib";
+
+// Data constants
 const ENEMIES = [
   "Choose an enemy",
   "Slime",
@@ -92,9 +97,6 @@ const ARMORS = [
   "Erdrick's Armor"
 ];
 const SHIELDS = ["Naked", "Small Shield", "Large Shield", "Silver Shield"];
-const statLine = (className, label, value) =>
-  div({ className }, `${label}: ${value}`);
-const statLineClasses = "pv2 ph2 dib";
 
 /**
  * [buttonBlock description]
@@ -105,72 +107,35 @@ const statLineClasses = "pv2 ph2 dib";
  */
 function buttonBlock(dispatch, player, model) {
   const { enemy, inBattle } = model;
-  if (R.equals(inBattle, R.F)) {
-    return button(
-      { className: "", onclick: e => dispatch(startBattleMsg) },
-      "Start Battle"
-    );
-  }
-  const buttons = [
-    button(
-      { className: "", onclick: e => dispatch(fightMsg(player, enemy)) },
-      "Attack"
-    )
-  ];
-  if (player.level >= 3) {
-    buttons.push(
-      button(
-        {
-          className: "",
-          onclick: e => dispatch(healMsg(player.hp, player.maxhp))
-        },
-        "Heal"
-      )
-    );
-  }
-  if (player.level >= 4) {
-    buttons.push(
-      button({ className: "", onclick: e => dispatch(hurtMsg) }, "Hurt")
-    );
-  }
-  if (player.level >= 7) {
-    buttons.push(
-      button({ className: "", onclick: e => dispatch(sleepMsg) }, "Sleep")
-    );
-  }
-  if (player.level >= 10) {
-    buttons.push(
-      button(
-        { className: "", onclick: e => dispatch(stopspellMsg) },
-        "Stopspell"
-      )
-    );
-  }
-  if (player.level >= 17) {
-    buttons.push(
-      button(
-        {
-          className: "",
-          onclick: e => dispatch(healmoreMsg(player.hp, player.maxhp))
-        },
-        "Healmore"
-      )
-    );
-  }
-  if (player.level >= 19) {
-    buttons.push(
-      button({ className: "", onclick: e => dispatch(hurtmoreMsg) }, "Hurtmore")
-    );
-  }
-  if (player.herbCount > 0) {
-    buttons.push(
-      button({ className: "", onclick: e => dispatch(useHerbMsg) }, "Use Herb")
-    );
-  }
-  buttons.push(
-    button({ className: "", onclick: e => dispatch(runMsg) }, "Run Away")
+  const newButtons = R.pipe(
+    player.level >= 3
+      ? R.append(button({ onclick: e => dispatch(healMsg) }, "Heal"))
+      : R.identity,
+    player.level >= 4
+      ? R.append(button({ onclick: e => dispatch(hurtMsg) }, "Hurt"))
+      : R.identity,
+    player.level >= 7
+      ? R.append(button({ onclick: e => dispatch(sleepMsg) }, "Sleep"))
+      : R.identity,
+    player.level >= 10
+      ? R.append(button({ onclick: e => dispatch(stopspellMsg) }, "Stopspell"))
+      : R.identity,
+    player.level >= 17
+      ? R.append(button({ onclick: e => dispatch(healmoreMsg) }, "Healmore"))
+      : R.identity,
+    player.level >= 19
+      ? R.append(button({ onclick: e => dispatch(hurtmoreMsg) }, "Hurtmore"))
+      : R.identity,
+    player.herbCount > 0
+      ? R.append(button({ onclick: e => dispatch(useHerbMsg) }, "Use Herb"))
+      : R.identity,
+    R.append(button({ onclick: e => dispatch(runMsg) }, "Run Away"))
   );
-  return buttons;
+  return R.equals(inBattle, R.F)
+    ? button({ onclick: e => dispatch(startBattleMsg) }, "Start Battle")
+    : newButtons([
+        button({ onclick: e => dispatch(fightMsg(player, enemy)) }, "Attack")
+      ]);
 }
 
 /**
@@ -223,11 +188,8 @@ function weaponOptions(selectedWeapon) {
  * @param  {[type]} selectedEnemy [description]
  * @return {[type]}               [description]
  */
-function enemyOptions(selected) {
-  let selectedEnemy = selected;
-  if (R.isNil(selectedEnemy)) {
-    selectedEnemy = "";
-  }
+function enemyOptions(selected = "") {
+  const selectedEnemy = selected;
   return R.map(
     enemy =>
       option({ value: enemy, selected: R.equals(selectedEnemy, enemy) }, enemy),
@@ -390,7 +352,7 @@ function statsBlock(dispatch, player, enemy, model) {
  * @param  {[object]} model    [Current model]
  * @return {[function]}          [The final view to be rendered to the DOM]
  */
-function view(dispatch, model) {
+export default function view(dispatch, model) {
   const { player, enemy } = model;
   return div({ className: "mw8 center" }, [
     h1({ className: "f2 pv2 bb" }, "Dragon Quest 1 Battle Simulator"),
@@ -404,5 +366,3 @@ function view(dispatch, model) {
     pre(JSON.stringify(model, null, 2))
   ]);
 }
-
-export default view;
