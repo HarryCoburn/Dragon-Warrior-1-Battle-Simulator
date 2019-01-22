@@ -23,7 +23,6 @@ const sumOfWeights = enemyAI =>
  */
 function getAttack(weightSum) {
   let random = Math.floor(Math.random() * (weightSum + 1));
-
   return function attackPick(attack) {
     random -= attack.weight;
     return random <= 0;
@@ -73,29 +72,48 @@ function enemyFlees(model) {
 }
 
 function enemyStillAsleep(model) {
-  const { enemy } = model;
-  const { enemySleep: asleep } = model;
-  const wakeChance = 3;
-  const wokeUp = R.equals(randomFromRange([1, wakeChance]), wakeChance);
-  if (R.equals(asleep, 2)) {
-    // Free round
-    return {
-      ...model,
-      battleText: R.append(`The ${enemy.name} is asleep.`, model.battleText),
-      enemySleep: 1
-    };
-  }
-  if (wokeUp) {
-    return enemyRound({
-      ...model,
-      battleText: R.append(`The ${enemy.name} woke up!`, model.battleText),
-      enemySleep: 0
-    });
-  }
+  return R.cond([
+    [
+      R.compose(
+        R.equals(2),
+        R.prop("enemySleep")
+      ),
+      firstRoundSleep
+    ],
+    [wakeUpCheck, enemyWakesUp],
+    [R.T, enemyStaysAsleep]
+  ])(model);
+}
+
+function firstRoundSleep(model) {
   return {
     ...model,
     battleText: R.append(
-      `The ${enemy.name} is still asleep...`,
+      `The ${model.enemy.name} is asleep.`,
+      model.battleText
+    ),
+    enemySleep: 1
+  };
+}
+
+function wakeUpCheck() {
+  const wakeChance = 3;
+  return R.equals(randomFromRange([1, wakeChance]), wakeChance);
+}
+
+function enemyWakesUp(model) {
+  return enemyRound({
+    ...model,
+    battleText: R.append(`The ${model.enemy.name} woke up!`, model.battleText),
+    enemySleep: 0
+  });
+}
+
+function enemyStaysAsleep(model) {
+  return {
+    ...model,
+    battleText: R.append(
+      `The ${model.enemy.name} is still asleep...`,
       model.battleText
     )
   };
