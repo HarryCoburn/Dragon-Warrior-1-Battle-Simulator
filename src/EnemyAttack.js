@@ -38,39 +38,67 @@ function getAttack(weightSum) {
  * @return {[type]}       [description]
  */
 export default function startEnemyRound(model) {
-  const { player, enemy } = model;
-  const wakeChance = 3;
+  return R.cond([
+    [sleepCheck, enemyStillAsleep],
+    [runCheck, enemyFlees],
+    [R.T, enemyRound]
+  ])(model);
+}
+
+function sleepCheck(model) {
+  return R.compose(
+    R.lt(0),
+    R.prop("enemySleep")
+  )(model);
+}
+
+function runCheck(model) {
+  return R.and(
+    R.gte(model.player.strength, model.enemy.strength * 2),
+    R.equals(randomFromRange([1, 4]), 4)
+  );
+}
+
+function enemyFlees(model) {
+  console.log("Running!");
+  return {
+    ...model,
+    battleText: R.append(
+      `The enemy flees from your superior strength!`,
+      model.battleText
+    ),
+    enemySleep: 0,
+    inBattle: R.F
+  };
+}
+
+function enemyStillAsleep(model) {
+  const { enemy } = model;
   const { enemySleep: asleep } = model;
-  const updatedText = [...model.battleText];
-  // Sleep Check
-  if (R.gt(asleep, 0)) {
-    if (R.equals(asleep, 2)) {
-      // Free round
-      updatedText.push(`The ${enemy.name} is asleep.`);
-      return { ...model, battleText: updatedText, enemySleep: 1 };
-    }
-    const wokeUp = R.equals(randomFromRange([1, wakeChance]), wakeChance);
-    if (wokeUp) {
-      updatedText.push(`The ${model.enemy.name} woke up!`);
-    } else {
-      updatedText.push(`The ${model.enemy.name} is still asleep...`);
-      return { ...model, battleText: updatedText };
-    }
+  const wakeChance = 3;
+  const wokeUp = R.equals(randomFromRange([1, wakeChance]), wakeChance);
+  if (R.equals(asleep, 2)) {
+    // Free round
+    return {
+      ...model,
+      battleText: R.append(`The ${enemy.name} is asleep.`, model.battleText),
+      enemySleep: 1
+    };
   }
-  // Run check
-  if (R.gte(player.strength, enemy.strength * 2)) {
-    const enemyRun = R.equals(randomFromRange([1, 4]), 4);
-    if (enemyRun) {
-      updatedText.push(`The enemy flees from your superior strength!`);
-      return {
-        ...model,
-        battleText: updatedText,
-        enemySleep: 0,
-        inBattle: R.F
-      };
-    }
+  if (wokeUp) {
+    return enemyRound({
+      ...model,
+      battleText: R.append(`The ${enemy.name} woke up!`, model.battleText),
+      enemySleep: 0
+    });
   }
-  return enemyRound({ ...model, battleText: updatedText, enemySleep: 0 });
+  return {
+    ...model,
+    battleText: R.append(
+      `The ${enemy.name} is still asleep...`,
+      model.battleText
+    )
+  };
 }
 
 /**

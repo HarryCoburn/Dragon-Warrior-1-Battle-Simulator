@@ -312,22 +312,21 @@ function playerStatsBlock(dispatch, player) {
  * @return {[type]}              [description]
  */
 function enemyBlock(dispatch, enemy, inBattle) {
-  if (R.equals(inBattle, R.F)) {
-    return div({ className: "w-25 mh3" }, [
-      div({}, "Enemy:"),
-      select(
-        {
-          className: "db pa2 ba input-reset br1 bg-white ba b--black",
-          onchange: e => dispatch(enemyMsg(e.target.value))
-        },
-        enemyOptions(enemy.name)
-      )
-    ]);
-  }
   const { hp } = enemy;
-  return div({ className: "w-25 mh3" }, [
-    statLine(statLineClasses, "Enemy Health", hp)
-  ]);
+  return R.equals(inBattle, R.F)
+    ? div({ className: "w-25 mh3" }, [
+        div({}, "Enemy:"),
+        select(
+          {
+            className: "db pa2 ba input-reset br1 bg-white ba b--black",
+            onchange: e => dispatch(enemyMsg(e.target.value))
+          },
+          enemyOptions(enemy.name)
+        )
+      ])
+    : div({ className: "w-25 mh3" }, [
+        statLine(statLineClasses, "Enemy Health", hp)
+      ]);
 }
 
 /**
