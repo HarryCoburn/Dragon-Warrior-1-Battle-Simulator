@@ -119,6 +119,11 @@ function enemyStaysAsleep(model) {
   };
 }
 
+const attackMatch = R.equals;
+
+
+const willSleep = model => (R.equals(model.playerSleep, R.F) ? R.T : R.F);
+const willStop = model => (R.equals(model.playerStop, R.F) ? R.T : R.F);
 /**
  * [enemyRound description]
  * @param  {[type]} model     [description]
@@ -126,66 +131,81 @@ function enemyStaysAsleep(model) {
  * @return {[type]}           [description]
  */
 function enemyRound(model, ai) {
-  const { enemy, playerSleep, playerStop } = model;
-  let aiPattern = ai;
-  if (R.isNil(aiPattern)) {
-    aiPattern = enemy.pattern;
-  }
+  const { enemy } = model;
+  const aiPattern = R.or(ai, enemy.pattern);
   const chosenAttack = aiPattern.find(getAttack(sumOfWeights(aiPattern))).id;
-  switch (chosenAttack) {
-    case "ATTACK": {
-      const roundDone = enemyAttack(model);
-      return roundDone;
-    }
-    case "HURT": {
-      const roundDone = enemyHurt(model, false);
-      return roundDone;
-    }
-    case "HURTMORE": {
-      const roundDone = enemyHurt(model, true);
-      return roundDone;
-    }
-    case "HEAL":
-    case "HEALMORE": {
-      const willHeal = enemy.hp / enemy.maxhp < 0.25 ? R.T : R.F;
-      if (willHeal) {
-        const roundDone = R.equals(chosenAttack, "HEAL")
-          ? enemyHeal(model, false)
-          : enemyHeal(model, true);
-        return roundDone;
-      }
-      console.log("Trying to make new AI pattern");
-      const newAIPattern = aiPattern.filter(
-        item => item.id !== "HEAL" || item.id !== "HEALMORE"
-      );
-      return enemyRound(model, newAIPattern);
-    }
-    case "SLEEP": {
-      if (playerSleep) {
-        const newAIPattern = aiPattern.filter(item => item.id !== "SLEEP");
-        return enemyRound(model, newAIPattern);
-      }
-      return enemySleep(model);
-    }
-    case "STOPSPELL": {
-      if (playerStop) {
-        const newAIPattern = aiPattern.filter(item => item.id !== "STOPSPELL");
-        return enemyRound(model, newAIPattern);
-      }
-      return enemyStop(model);
-    }
-    case "FIRE": {
-      const roundDone = enemyFire(model, false);
-      return roundDone;
-    }
-    case "STRONGFIRE": {
-      const roundDone = enemyFire(model, true);
-      return roundDone;
-    }
-    default: {
-      return model;
-    }
-  }
+  console.log("Chosen attack is...")
+  console.log(chosenAttack)
+  return R.cond([
+    [attackMatch("ATTACK"), () => enemyAttack(model)],
+    [attackMatch("HURT"), () => enemyHurt(model, false)],
+    [attackMatch("HURTMORE"), () => enemyHurt(model, true)],
+    [attackMatch("HEAL"), () => checkHeal(model, false, aiPattern)],
+    [
+      attackMatch("HEALMORE"),
+      () =>
+        R.ifElse(
+          willHeal(model),
+          enemyHeal(model, true),
+          removeHeal(model, aiPattern)
+        )
+    ],
+    [
+      attackMatch("SLEEP"),
+      () =>
+        R.ifElse(
+          willSleep(model),
+          enemySleep(model),
+          removeSleep(model, aiPattern)
+        )
+    ],
+    [
+      attackMatch("STOPSPELL"),
+      () =>
+        R.ifElse(
+          willStop(model),
+          enemyStop(model),
+          removeStop(model, aiPattern)
+        )
+    ],
+    [attackMatch("FIRE"), () => enemyFire(model, false)],
+    [attackMatch("STRONGFIRE"), () => enemyFire(model, true)],
+    [R.T, () => console.log("Enemy Round Went Wrong!")]
+  ])(chosenAttack);
+}
+
+const enemyHPRatio = model => model.enemy.hp / model.enemy.maxhp;
+
+function willHeal(model) {
+  return R.compose(
+    R.gt(0.25),
+    enemyHPRatio
+  )(model);
+}
+
+function checkHeal(model, healFlag, aiPattern) {
+  return R.ifElse(
+    willHeal,
+    () => enemyHeal(healFlag, model),
+    () => removeHeal(aiPattern, model)
+  )(model);
+}
+
+function removeHeal(aiPattern, model) {
+  const newAIPattern = aiPattern.filter(
+    item => item.id !== "HEAL" && item.id !== "HEALMORE"
+  );
+  return enemyRound(model, newAIPattern);
+}
+
+function removeSleep(model, aiPattern) {
+  const newAIPattern = aiPattern.filter(item => item.id !== "SLEEP");
+  return enemyRound(model, newAIPattern);
+}
+
+function removeStop(model, aiPattern) {
+  const newAIPattern = aiPattern.filter(item => item.id !== "STOPSPELL");
+  return enemyRound(model, newAIPattern);
 }
 
 /**
@@ -254,6 +274,8 @@ function enemyHurt(model, isHurtmore) {
   const eHurtmoreRangeLow = [20, 30];
   const spellName = isHurtmore ? "Hurtmore" : "Hurt";
   const { enemy, player, enemyStop: stopped } = model;
+  console.log("Stopped is");
+  console.log(stopped);
   const { hp, armor } = player;
   const magicDefense = armor.magDef;
   const hurtDamage = isHurtmore
@@ -292,7 +314,7 @@ function enemyHurt(model, isHurtmore) {
  * @param  {Boolean} isHealmore [description]
  * @return {[type]}             [description]
  */
-function enemyHeal(model, isHealmore) {
+function enemyHeal(isHealmore, model) {
   const eHealRange = [20, 27];
   const eHealmoreRange = [85, 100];
   const { enemy, enemyStop: stopped } = model;
@@ -305,7 +327,7 @@ function enemyHeal(model, isHealmore) {
   const finalHeal = healMax < healAmt ? healMax : healAmt;
   const updatedText = [...model.battleText];
   updatedText.push(`${capitalize(enemy.name)} casts ${spellName}!`);
-  if (stopped) {
+  if (R.equals(stopped, R.T)) {
     updatedText.push(`However, ${capitalize(enemy.name)}'s magic is blocked!`);
     return { ...model, battleText: updatedText };
   }

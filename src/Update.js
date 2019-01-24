@@ -197,11 +197,8 @@ function update(msg, model) {
       case MSGS.FIGHT:
       case MSGS.USE_HERB:
       case MSGS.RUN_AWAY: {
-        console.log("Player turn");
         currModel = startPlayerRound(currModel, msg);
         const { inBattle } = currModel;
-        console.log("Trying to end battle with ");
-        console.log(inBattle);
         if (R.equals(inBattle, R.F)) {
           messageQueue.push(fightCleanupMsg);
         } else {
