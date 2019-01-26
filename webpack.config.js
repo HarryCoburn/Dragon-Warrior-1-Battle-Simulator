@@ -1,14 +1,15 @@
 module.exports = {
-  entry: ['./src/index.js'],
-  devtool: 'inline-source-map',
+  entry: ["./src/index.js"],
+  devtool: "inline-source-map",
   output: {
-    filename: 'bundle.js',
+    path: __dirname + "/dist",
+    filename: "[name].js"
   },
   watch: true,
-  devServer : {
-    contentBase: './src',
+  devServer: {
+    contentBase: "./src",
     compress: true,
-    port: 9000,
+    port: 9000
   },
   module: {
     rules: [

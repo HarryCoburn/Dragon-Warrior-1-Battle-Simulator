@@ -1,6 +1,10 @@
 import { diff, patch } from "virtual-dom";
 import createElement from "virtual-dom/create-element";
 
+function unreachable() {
+  console.log("Never get here!");
+}
+
 /**
  * [app Core App, starts the program]
  * @param  {[object]} initModel [description]
