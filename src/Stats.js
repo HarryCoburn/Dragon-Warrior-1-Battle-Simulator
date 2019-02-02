@@ -116,7 +116,7 @@ export function changeStats(model) {
   const { nameSum, progression, level } = player;
   const baseLevelStats = LEVELS[level];
   const newStats = statsCalc(nameSum, progression, baseLevelStats);
-  const [newStr, newAgi, newHP, newMP] = newStats;  
+  const [newStr, newAgi, newHP, newMP] = newStats;
   return R.pipe(
     R.assoc("strength", newStr),
     R.assoc("agility", newAgi),

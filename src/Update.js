@@ -29,35 +29,6 @@ const MSGS = {
   USE_HERB: "USE_HERB"
 };
 
-const capitalize = x => x.charAt(0).toUpperCase() + x.slice(1);
-
-/**
- * [healmoreMsg description]
- * @param  {[type]} hp    [description]
- * @param  {[type]} maxhp [description]
- * @return {[type]}       [description]
- */
-export function healmoreMsg(hp, maxhp) {
-  return {
-    type: MSGS.CAST_HEALMORE,
-    hp,
-    maxhp
-  };
-}
-/**
- * [healMsg description]
- * @param  {[type]} hp [description]
- * @param  {[type]} maxhp [description]
- * @return {[type]}    [description]
- */
-export function healMsg(hp, maxhp) {
-  return {
-    type: MSGS.CAST_HEAL,
-    hp,
-    maxhp
-  };
-}
-
 /**
  * [shieldMsg description]
  * @param  {[type]} shield [description]
@@ -151,7 +122,13 @@ export function fightMsg(player, enemy) {
     enemy
   };
 }
-export const startBattleMsg = { type: MSGS.START_BATTLE };
+/**
+ * [healmoreMsg description]
+ * @param  {[type]} hp    [description]
+ * @param  {[type]} maxhp [description]
+ * @return {[type]}       [description]
+ */
+
 const statsMsg = { type: MSGS.CHANGE_STATS };
 const fightCleanupMsg = { type: MSGS.FIGHT_CLEANUP };
 const enemyTurnMsg = { type: MSGS.ENEMY_TURN };
@@ -161,6 +138,9 @@ export const hurtmoreMsg = { type: MSGS.CAST_HURTMORE };
 export const stopspellMsg = { type: MSGS.CAST_STOPSPELL };
 export const useHerbMsg = { type: MSGS.USE_HERB };
 export const runMsg = { type: MSGS.RUN_AWAY };
+export const healmoreMsg = { type: MSGS.CAST_HEALMORE };
+export const healMsg = { type: MSGS.CAST_HEAL };
+export const startBattleMsg = { type: MSGS.START_BATTLE };
 
 /**
  * [update Handles the update messages. Source of impurity]
@@ -218,8 +198,7 @@ function update(msg, model) {
 
       case MSGS.FIGHT_CLEANUP: {
         messageQueue.push(statsMsg);
-        const enemyName = capitalize(currModel.enemy.name);
-        messageQueue.push(enemyMsg(enemyName));
+        messageQueue.push(enemyMsg(currModel.enemy.name));
         currModel = {
           ...currModel,
           cleanBattleText: R.T,
@@ -274,7 +253,7 @@ function update(msg, model) {
       }
       default:
         console.log("Got to default in update function");
-        console.log(`Attempted message was ${msg}`);
+        console.log(`Attempted message was ${msg.type}`);
         return currModel;
     }
   }
