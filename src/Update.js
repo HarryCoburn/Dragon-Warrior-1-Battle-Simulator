@@ -40,7 +40,6 @@ export function shieldMsg(shield) {
     shield
   };
 }
-
 /**
  * [changeHerb description]
  * @param  {[type]} herb [description]
@@ -52,7 +51,6 @@ export function herbMsg(herb) {
     herb
   };
 }
-
 /**
  * [armorMsg description]
  * @param  {[type]} armor [description]
@@ -64,7 +62,6 @@ export function armorMsg(armor) {
     armor
   };
 }
-
 /**
  * [weaponMsg description]
  * @param  {[type]} weapon [description]
@@ -197,15 +194,18 @@ function update(msg, model) {
       }
 
       case MSGS.FIGHT_CLEANUP: {
-        messageQueue.push(statsMsg);
-        messageQueue.push(enemyMsg(currModel.enemy.name));
+        messageQueue.push(statsMsg); // Reset player stats
+        messageQueue.push(enemyMsg(currModel.enemy.name)); // Reset enemy stats
         currModel = {
           ...currModel,
           cleanBattleText: R.T,
           enemySleep: 0,
           enemyStop: R.F,
           playerSleep: R.F,
-          sleepCount: 6
+          playerStop: R.F,
+          sleepCount: 6,
+          initiative: R.F,
+          critHit: R.F
         };
         break;
       }
