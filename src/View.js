@@ -131,7 +131,7 @@ function buttonBlock(dispatch, player, model) {
       : R.identity,
     R.append(button({ onclick: e => dispatch(runMsg) }, "Run Away"))
   );
-  return R.equals(inBattle, R.F)
+  return R.equals(inBattle, false)
     ? button({ onclick: e => dispatch(startBattleMsg) }, "Start Battle")
     : newButtons([
         button({ onclick: e => dispatch(fightMsg(player, enemy)) }, "Attack")
@@ -313,7 +313,7 @@ function playerStatsBlock(dispatch, player) {
  */
 function enemyBlock(dispatch, enemy, inBattle) {
   const { hp } = enemy;
-  return R.equals(inBattle, R.F)
+  return R.equals(inBattle, false)
     ? div({ className: "w-25 mh3" }, [
         div({}, "Enemy:"),
         select(

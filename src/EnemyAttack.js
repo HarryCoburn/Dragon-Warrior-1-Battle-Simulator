@@ -40,7 +40,7 @@ export default function startEnemyRound(model) {
   return R.cond([
     [sleepCheck, enemyStillAsleep],
     [runCheck, enemyFlees],
-    [R.T, enemyRound]
+    [R.always(true), enemyRound]
   ])(model);
 }
 
@@ -67,7 +67,7 @@ function enemyFlees(model) {
       model.battleText
     ),
     enemySleep: 0,
-    inBattle: R.F
+    inBattle: false
   };
 }
 
@@ -81,7 +81,7 @@ function enemyStillAsleep(model) {
       firstRoundSleep
     ],
     [wakeUpCheck, enemyWakesUp],
-    [R.T, enemyStaysAsleep]
+    [true, enemyStaysAsleep]
   ])(model);
 }
 
@@ -121,9 +121,9 @@ function enemyStaysAsleep(model) {
 
 const attackMatch = R.equals;
 
+const willSleep = R.propEq("playerSleep", false);
+const willStop = R.propEq("playerStop", false);
 
-const willSleep = model => (R.equals(model.playerSleep, R.F) ? R.T : R.F);
-const willStop = model => (R.equals(model.playerStop, R.F) ? R.T : R.F);
 /**
  * [enemyRound description]
  * @param  {[type]} model     [description]
@@ -134,43 +134,39 @@ function enemyRound(model, ai) {
   const { enemy } = model;
   const aiPattern = R.or(ai, enemy.pattern);
   const chosenAttack = aiPattern.find(getAttack(sumOfWeights(aiPattern))).id;
-  console.log("Chosen attack is...")
-  console.log(chosenAttack)
+  console.log("Chosen attack is...");
+  console.log(chosenAttack);
   return R.cond([
     [attackMatch("ATTACK"), () => enemyAttack(model)],
     [attackMatch("HURT"), () => enemyHurt(model, false)],
     [attackMatch("HURTMORE"), () => enemyHurt(model, true)],
-    [attackMatch("HEAL"), () => checkHeal(model, false, aiPattern)],
+    [
+      attackMatch("HEAL"),
+      () =>
+        willHeal(model)
+          ? enemyHeal(model, false)
+          : removeHeal([model, aiPattern])
+    ], // TODO, reactivate these when conditions are different?
     [
       attackMatch("HEALMORE"),
       () =>
-        R.ifElse(
-          willHeal(model),
-          enemyHeal(model, true),
-          removeHeal(model, aiPattern)
-        )
+        willHeal(model)
+          ? enemyHeal(model, true)
+          : removeHeal([model, aiPattern])
     ],
     [
       attackMatch("SLEEP"),
       () =>
-        R.ifElse(
-          willSleep(model),
-          enemySleep(model),
-          removeSleep(model, aiPattern)
-        )
+        willSleep(model) ? enemySleep(model) : removeSleep([model, aiPattern])
     ],
     [
       attackMatch("STOPSPELL"),
       () =>
-        R.ifElse(
-          willStop(model),
-          enemyStop(model),
-          removeStop(model, aiPattern)
-        )
+        willStop(model) ? enemyStop(model) : removeStop([model, aiPattern])
     ],
     [attackMatch("FIRE"), () => enemyFire(model, false)],
     [attackMatch("STRONGFIRE"), () => enemyFire(model, true)],
-    [R.T, () => console.log("Enemy Round Went Wrong!")]
+    [true, () => console.log("Enemy Round Went Wrong!")]
   ])(chosenAttack);
 }
 
@@ -180,14 +176,6 @@ function willHeal(model) {
   return R.compose(
     R.gt(0.25),
     enemyHPRatio
-  )(model);
-}
-
-function checkHeal(model, healFlag, aiPattern) {
-  return R.ifElse(
-    willHeal,
-    () => enemyHeal(healFlag, model),
-    () => removeHeal(aiPattern, model)
   )(model);
 }
 
@@ -203,7 +191,9 @@ function removeSleep(model, aiPattern) {
   return enemyRound(model, newAIPattern);
 }
 
-function removeStop(model, aiPattern) {
+function removeStop(bundle) {
+  console.log("Trying to remove stop");
+  const [model, aiPattern] = bundle;
   const newAIPattern = aiPattern.filter(item => item.id !== "STOPSPELL");
   return enemyRound(model, newAIPattern);
 }
@@ -256,7 +246,7 @@ function enemyBattleMessages(model, damage) {
   );
   if (player.hp <= 0) {
     battleText.push(`You have been defeated by the ${enemy.name}!`);
-    return { ...model, battleText, inBattle: R.F };
+    return { ...model, battleText, inBattle: false };
   }
   return { ...model, battleText };
 }
@@ -288,12 +278,12 @@ function enemyHurt(model, isHurtmore) {
   const newHP = hp - hurtDamage;
   const updatedText = [...model.battleText];
   updatedText.push(`${capitalize(enemy.name)} casts ${spellName}!`);
-  if (R.equals(stopped, R.T)) {
+  if (R.equals(stopped, true)) {
     updatedText.push(`However, ${capitalize(enemy.name)}'s magic is blocked!`);
     return { ...model, battleText: updatedText };
   }
   updatedText.push(` Player is hurt by ${hurtDamage} hit points.`);
-  const battleState = newHP <= 0 ? R.F : R.T;
+  const battleState = newHP <= 0;
   const newPlayer = { ...player, hp: newHP };
   if (newHP <= 0) {
     updatedText.push(
@@ -327,7 +317,7 @@ function enemyHeal(isHealmore, model) {
   const finalHeal = healMax < healAmt ? healMax : healAmt;
   const updatedText = [...model.battleText];
   updatedText.push(`${capitalize(enemy.name)} casts ${spellName}!`);
-  if (R.equals(stopped, R.T)) {
+  if (R.equals(stopped, true)) {
     updatedText.push(`However, ${capitalize(enemy.name)}'s magic is blocked!`);
     return { ...model, battleText: updatedText };
   }
@@ -353,7 +343,7 @@ function enemySleep(model) {
     return { ...model, battleText: updatedText };
   }
   updatedText.push(`You fall asleep!`);
-  return { ...model, battleText: updatedText, playerSleep: R.T };
+  return { ...model, battleText: updatedText, playerSleep: true };
 }
 
 /**
@@ -365,13 +355,13 @@ function enemyStop(model) {
   const { enemy, enemyStop: stopped } = model;
   const updatedText = [...model.battleText];
   updatedText.push(`The ${enemy.name} casts Stopspell!`);
-  if (stopped) {
+  if (R.equals(stopped, true) === true) {
     updatedText.push(`However, ${capitalize(enemy.name)}'s magic is blocked!`);
     return { ...model, battleText: updatedText };
   }
   if (coinFlip()) {
     updatedText.push(`Your magic has been blocked!`);
-    return { ...model, battleText: updatedText, playerBlock: R.T };
+    return { ...model, battleText: updatedText, playerStop: true };
   }
   updatedText.push(`But the spell fails!`);
   return { ...model, battleText: updatedText };
@@ -403,7 +393,7 @@ function enemyFire(model, isStrongfire) {
   const updatedText = [...model.battleText];
   updatedText.push(`${capitalize(enemy.name)} breathes ${spellName}!`);
   updatedText.push(` Player is hurt by ${fireDamage} hit points.`);
-  const battleState = newHP <= 0 ? R.F : R.T;
+  const battleState = newHP <= 0;
   const newPlayer = { ...player, hp: newHP };
   if (newHP <= 0) {
     updatedText.push(

@@ -3,8 +3,8 @@ import { randomFromRange } from "./Utils";
 
 // Reset battleText
 const clearText = R.assoc("battleText", []);
-const clearTextCheck = R.assoc("cleanBattleText", R.F);
-const needToClean = R.propEq("cleanBattleText", R.T);
+const clearTextCheck = R.assoc("cleanBattleText", false);
+const needToClean = R.propEq("cleanBattleText", true);
 const cleanTextPipe = R.pipe(
   clearText,
   clearTextCheck
@@ -17,8 +17,8 @@ const checkEnemyObject = R.propIs(Object, "enemy");
 // Warn we haven't selected an enemy
 const chooseWarning = R.evolve({
   battleText: R.append(`Please choose an enemy!`),
-  cleanBattleText: R.T,
-  initiative: R.F
+  cleanBattleText: R.always(true),
+  initiative: R.always(false)
 });
 
 // Generate initiative number. x = agility, y = modifier
@@ -56,7 +56,7 @@ function fightSetup(model) {
         R.assoc("hp", enemyHP),
         R.assoc("maxhp", enemyHP)
       ),
-      inBattle: R.T,
+      inBattle: R.always(true),
       battleText: R.append(`You are fighting the ${model.enemy.name}`),
       initiative: checkInit(model)
     },

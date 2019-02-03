@@ -25,9 +25,9 @@ describe("Enemies.js", () => {
 
 describe("ramda test", () => {
   test("Checking fro Ramda", () => {
-    const blah = R.T;
+    const blah = true;
 
-    expect(blah).toEqual(R.T);
-    expect(blah).toBe(R.T);
+    expect(blah).toEqual(true);
+    expect(blah).toBe(true);
   });
 });

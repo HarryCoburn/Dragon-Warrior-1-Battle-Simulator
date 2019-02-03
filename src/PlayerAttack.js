@@ -13,7 +13,7 @@ const dodgeSuccess = dodgeChance =>
 // Test to see if an enemy resisted a spell
 const resistLimit = 16;
 const resistCheck = resistValue =>
-  randomFromRange([1, resistLimit]) <= resistValue ? R.T : R.F;
+  randomFromRange([1, resistLimit]) <= resistValue;
 
 // Test if you still sleeping at the start of a round.
 const checkSleepCount = model => model.sleepCount > 0;
@@ -40,7 +40,7 @@ const stayAsleep = R.evolve({
 
 const wakeUp = R.evolve({
   battleText: R.append("You wake up!"),
-  playerSleep: R.F
+  playerSleep: false
 });
 
 const checkWakeUp = R.ifElse(stillSleeping, stayAsleep, wakeUp);
@@ -52,10 +52,12 @@ const checkWakeUp = R.ifElse(stillSleeping, stayAsleep, wakeUp);
  * @return {[type]}       [description]
  */
 export function startPlayerRound(model, msg) {
-  const sleepChecked = R.when(R.propEq("playerSleep", R.T), checkWakeUp)(model);
+  const sleepChecked = R.when(R.propEq("playerSleep", true), checkWakeUp)(
+    model
+  );
   console.log("Checking sleep");
   console.log(sleepChecked);
-  if (R.equals(sleepChecked.playerSleep, R.T)) return sleepChecked;
+  if (R.equals(sleepChecked.playerSleep, true)) return sleepChecked;
   switch (msg.type) {
     case "CAST_HEAL":
     case "CAST_HEALMORE":
@@ -121,9 +123,9 @@ function runAway(model) {
   const updatedText = [...model.battleText];
   updatedText.push(`You try to run away...`);
   const successfulRun = R.gt(pAgility * pMod, eAgility * eMod * eRunMod);
-  if (R.or(successfulRun, R.equals(model.enemySleep, R.T))) {
+  if (R.or(successfulRun, R.equals(model.enemySleep, true))) {
     updatedText.push(`You succeed in fleeing!`);
-    return { ...model, inBattle: R.F, battleText: updatedText };
+    return { ...model, inBattle: false, battleText: updatedText };
   }
   updatedText.push(`...but the enemy blocks you from running away!`);
   return { ...model, battleText: updatedText };
@@ -180,7 +182,7 @@ function playerDamage(player, enemy, critHit, dodged) {
 function isPlayerDamageLow(damage) {
   if (damage < 1) {
     const zeroDamage = coinFlip();
-    const finalPlayerDamage = R.equals(zeroDamage, R.T) ? 0 : 1;
+    const finalPlayerDamage = R.equals(zeroDamage, true) ? 0 : 1;
     return finalPlayerDamage;
   }
   return damage;
@@ -208,7 +210,7 @@ function playerBattleMessages(model, damage, critHit, dodged) {
   battleText.push(`Player hits ${enemy.name} for ${damage} points of damage.`);
   if (enemy.hp <= 0) {
     battleText.push(`You have defeated the ${enemy.name}!`);
-    return { ...model, battleText, inBattle: R.F };
+    return { ...model, battleText, inBattle: false };
   }
   return { ...model, battleText };
 }
@@ -310,6 +312,8 @@ function playerHurt(model, isHurtmore) {
   const playerHurtRange = [5, 12];
   const playerHurtmoreRange = [58, 65];
   const { enemy, player, playerStop: stopped } = model;
+  console.log("Stopped is...");
+  console.log(stopped);
   const { hp, hurtR } = enemy;
   const { mp } = player;
   const spellName = isHurtmore ? "Hurtmore" : "Hurt";
@@ -325,7 +329,7 @@ function playerHurt(model, isHurtmore) {
   }
   const newMP = isHurtmore ? mp - hurtmoreCost : mp - hurtCost;
   const newPlayer = { ...player, mp: newMP };
-  if (stopped) {
+  if (R.equals(stopped, true) === true) {
     return {
       ...model,
       player: newPlayer,
@@ -342,14 +346,14 @@ function playerHurt(model, isHurtmore) {
   const updatedText = [...model.battleText];
   updatedText.push(`Player casts Hurt!`);
   const hurtResisted = resistCheck(hurtR);
-  if (R.equals(hurtResisted, R.T)) {
+  if (R.equals(hurtResisted, true)) {
     updatedText.push(`But the ${enemy.name} resisted!`);
     return { ...model, player: newPlayer, battleText: updatedText };
   }
   updatedText.push(
     ` ${capitalize(enemy.name)} is hurt by ${hurtDamage} hit points`
   );
-  const battleState = newHP <= 0 ? R.F : R.T;
+  const battleState = newHP <= 0;
   // Handle wins
   const newEnemy = { ...enemy, hp: newHP };
   if (newHP <= 0) {
@@ -391,7 +395,7 @@ function playerSleep(model) {
     return { ...model, player: newPlayer, battleText: updatedText };
   }
   const sleepResisted = resistCheck(sleepR);
-  if (R.equals(sleepResisted, R.T)) {
+  if (R.equals(sleepResisted, true)) {
     updatedText.push(`But the ${enemy.name} resisted!`);
     return { ...model, player: newPlayer, battleText: updatedText };
   }
@@ -436,12 +440,12 @@ function playerStop(model) {
     return { ...model, player: newPlayer, battleText: updatedText };
   }
   const stopResisted = resistCheck(stopR);
-  if (R.equals(stopResisted, R.T)) {
+  if (R.equals(stopResisted, true)) {
     updatedText.push(`But the ${enemy.name} resisted!`);
     return { ...model, player: newPlayer, battleText: updatedText };
   }
   updatedText.push(` ${capitalize(enemy.name)}'s magic is now blocked!`);
-  const enemyStopState = R.T;
+  const enemyStopState = true;
   return {
     ...model,
     player: newPlayer,

@@ -176,20 +176,19 @@ function update(msg, model) {
       case MSGS.RUN_AWAY: {
         currModel = startPlayerRound(currModel, msg);
         const { inBattle } = currModel;
-        if (R.equals(inBattle, R.F)) {
-          messageQueue.push(fightCleanupMsg);
-        } else {
-          messageQueue.push(enemyTurnMsg);
-        }
+        R.equals(inBattle, false)
+          ? messageQueue.push(fightCleanupMsg)
+          : messageQueue.push(enemyTurnMsg);
         break;
       }
 
       case MSGS.ENEMY_TURN: {
         const enemyRound = startEnemyRound(currModel);
         currModel = enemyRound;
-        if (R.equals(currModel.inBattle, R.F)) {
-          messageQueue.push(fightCleanupMsg);
-        }
+        R.when(
+          R.equals(currModel.inBattle, false),
+          messageQueue.push(fightCleanupMsg)
+        );
         break;
       }
 
@@ -198,14 +197,14 @@ function update(msg, model) {
         messageQueue.push(enemyMsg(currModel.enemy.name)); // Reset enemy stats
         currModel = {
           ...currModel,
-          cleanBattleText: R.T,
+          cleanBattleText: true,
           enemySleep: 0,
-          enemyStop: R.F,
-          playerSleep: R.F,
-          playerStop: R.F,
+          enemyStop: false,
+          playerSleep: false,
+          playerStop: false,
           sleepCount: 6,
-          initiative: R.F,
-          critHit: R.F
+          initiative: false,
+          critHit: false
         };
         break;
       }

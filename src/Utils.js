@@ -3,8 +3,8 @@ import * as R from "ramda";
 export const coinFlip = R.ifElse(
   // Returns true/false like tossing a coin
   R.equals(Math.floor(Math.random() * 2)),
-  R.F,
-  R.T
+  R.always(false),
+  R.always(true)
 );
 
 // Capitalizes first character in string

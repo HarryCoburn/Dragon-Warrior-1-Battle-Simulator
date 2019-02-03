@@ -1,5 +1,3 @@
-import * as R from "ramda";
-
 const ATTACKS = {
   ATTACK: "ATTACK",
   HURT: "HURT",
@@ -554,7 +552,7 @@ const ENEMIES = {
       { id: ATTACKS.HURTMORE, weight: 75 },
       { id: ATTACKS.ATTACK, weight: 25 }
     ],
-    voidCrit: R.T,
+    voidCrit: true,
     run: 3
   },
   "Dragonlord (second form)": {
@@ -570,7 +568,7 @@ const ENEMIES = {
       { id: ATTACKS.STRONGFIRE, weight: 50 },
       { id: ATTACKS.ATTACK, weight: 50 }
     ],
-    voidCrit: R.T,
+    voidCrit: true,
     run: 3
   }
 };

@@ -9,9 +9,9 @@ const model = {
     agility: 3,
     hp: 3
   },
-  cleanBattleText: F,
-  inBattle: F,
-  initiative: F,
+  cleanBattleText: false,
+  inBattle: false,
+  initiative: false,
   player: {
     name: "Rollo",
     strength: 4,
@@ -27,7 +27,7 @@ describe("Battle.js Tests", () => {
     expect(testModel.battleText).toEqual([`You are fighting the Slime`]);
     expect(testModel.player.hp).toEqual(testModel.player.maxhp);
     expect(testModel.enemy.hp).toEqual(testModel.enemy.maxhp);
-    expect(testModel.inBattle).toEqual(true);
+    expect(testModel.inBattle).toBe(true);
     expect(testModel.hasOwnProperty("initiative")).toBe(true);
   });
 
@@ -51,19 +51,19 @@ describe("Battle.js Tests", () => {
     const testModel3 = startBattle(emptyModel);
 
     expect(testModel3.battleText).toEqual([`Please choose an enemy!`]);
-    expect(testModel3.cleanBattleText).toEqual(true);
-    expect(testModel3.initiative).toEqual(false);
+    expect(testModel3.cleanBattleText).toBe(true);
+    expect(testModel3.initiative).toBe(false);
   });
 
   test("Clearing text", () => {
     const textModel = {
       ...model,
-      cleanBattleText: T,
+      cleanBattleText: true,
       battleText: [`You shouldn't see this`]
     };
     const testModel4 = startBattle(textModel);
 
     expect(testModel4.battleText).toEqual([`You are fighting the Slime`]);
-    expect(testModel4.cleanBattleText).toEqual(F);
+    expect(testModel4.cleanBattleText).toEqual(false);
   });
 });
